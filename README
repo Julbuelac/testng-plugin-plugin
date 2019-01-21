@@ -12,9 +12,13 @@ build into Hudson. The data is parsed using the output generated using
 org.testng.reporters.XMLReporter. The results are displayed with a trend
 graph and all details about which tests that failed are also presented.
 
+The aim of this fork is to improve how the data is displayed in Jenkins
+
 
 Release Notes
 -------
+
+### FORK STARTS HERE ###
 
 ### 1.15
 * Fixed: JENKINS-32746 - Change loop determination condition in order to check all loaded builds (Julien Herr)
