@@ -1,4 +1,4 @@
-package hudson.plugins.testng.results.MethodResult
+package hudson.plugins.testng.results.TestNGTestResult
 
 f = namespace(lib.FormTagLib)
 l = namespace(lib.LayoutTagLib)

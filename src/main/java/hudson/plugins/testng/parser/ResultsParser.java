@@ -22,6 +22,7 @@ import hudson.plugins.testng.results.ClassResult;
 import hudson.plugins.testng.results.MethodResult;
 import hudson.plugins.testng.results.MethodResultException;
 import hudson.plugins.testng.results.PackageResult;
+import hudson.plugins.testng.results.SuiteResult;
 import hudson.plugins.testng.results.TestNGResult;
 import hudson.plugins.testng.results.TestNGTestResult;
 import org.xmlpull.v1.XmlPullParser;
@@ -63,7 +64,8 @@ public class ResultsParser {
    private StringBuilder reporterOutputBuilder;
    private Map<String, List<String>> methodGroupMap = new HashMap<String, List<String>>();
    private TestNGResult finalResults;
-   private List<TestNGTestResult> testList;
+   private List<SuiteResult> suiteList;
+   private List<TestNGTestResult> currentTestList;
    private List<ClassResult> currentClassList;
    private List<MethodResult> currentMethodList;
    private List<String> currentMethodParamsList;
@@ -77,7 +79,7 @@ public class ResultsParser {
    private String currentShortStackTrace;
    private String currentFullStackTrace;
    private String currentGroupName;
-   private String currentSuite;
+   private SuiteResult currentSuite;
    private String currentLine;
    private String exceptionName;
 
@@ -151,7 +153,7 @@ public class ResultsParser {
             xmlPullParser = createXmlPullParser(bufferedInputStream);
 
             //some initial setup
-            testList = new ArrayList<TestNGTestResult>();
+            suiteList = new ArrayList<SuiteResult>();
 
             while (XmlPullParser.END_DOCUMENT != xmlPullParser.nextToken()) {
                TAGS tag = TAGS.fromString(xmlPullParser.getName());
@@ -162,7 +164,7 @@ public class ResultsParser {
                   case XmlPullParser.START_TAG:
                      switch (tag) {
                         case SUITE:
-                           startSuite(get("name"));
+                           startSuite(get("name"),get("duration-ms"), get("started-at"));
                            break;
                         case GROUPS:
                            startGroups();
@@ -174,7 +176,7 @@ public class ResultsParser {
                            startGroupMethod(get("class"), get("name"));
                            break;
                         case TEST:
-                           startTest(get("name"));
+                           startTest(get("name"), get("duration-ms"), get("started-at"));
                            break;
                         case CLASS:
                            startClass(get("name"));
@@ -264,7 +266,7 @@ public class ResultsParser {
                       // ignore others
                }
             }
-            finalResults.addUniqueTests(testList);
+            finalResults.addUniqueSuites(suiteList);
          } catch (XmlPullParserException e) {
             log("Failed to parse XML: " + e.getMessage());
             log(e);
@@ -351,22 +353,31 @@ public class ResultsParser {
    private void startGroups()
    {
       methodGroupMap = new HashMap<String, List<String>>();
-   }
+	}
 
-   private void startSuite(String name)
-   {
-      currentSuite = name;
-   }
+	private void startSuite(String name, String duration, String startedAt) {
 
-   private void finishSuite()
-   {
-      methodGroupMap.clear();
-      currentSuite = null;
-   }
+		Date startedAtDate = null;
+		try {
+			startedAtDate = this.dateFormat.parse(startedAt);
+		} catch (ParseException e) {
+			log("Unable to parse started-at value: " + startedAt);
+		}
+		currentSuite = new SuiteResult(name, duration, startedAtDate.getTime());
 
-   private void startException(String exceptionName)
-   {
-      this.exceptionName = exceptionName;
+		currentTestList = new ArrayList<TestNGTestResult>();
+	}
+
+	private void finishSuite() {
+
+		currentSuite.addTestList(currentTestList);
+		suiteList.add(currentSuite);
+		methodGroupMap.clear();
+		currentSuite = null;
+	}
+
+	private void startException(String exceptionName) {
+		this.exceptionName = exceptionName;
    }
 
    private void finishException()
@@ -434,7 +445,7 @@ public class ResultsParser {
       currentMethod = new MethodResult(name, status, description, duration,
          startedAtDate == null ? -1 : startedAtDate.getTime(),
          isConfig, currentTestRunId, currentTest.getName(),
-         currentSuite, testInstanceName);
+         currentSuite.getName(), testInstanceName);
       List<String> groups = methodGroupMap.get(currentClass.getCanonicalName() + "|" + name);
       if (groups != null) {
          currentMethod.setGroups(groups);
@@ -478,12 +489,18 @@ public class ResultsParser {
       currentTestRunId = null;
    }
 
-   private void startTest(String name)
+   private void startTest(String name, String duration, String startTime)
    {
       if (testResultMap.containsKey(name)) {
          currentTest = testResultMap.get(name);
       } else {
-         currentTest = new TestNGTestResult(name);
+    	  Date startedTimeDate = null;
+          try {
+             startedTimeDate = this.dateFormat.parse(startTime);
+          } catch (ParseException e) {
+             log("Unable to parse started-at value: " + startTime);
+          }
+         currentTest = new TestNGTestResult(name, startedTimeDate.getTime(),duration);
          testResultMap.put(name, currentTest);
       }
       currentClassList = new ArrayList<ClassResult>();
@@ -492,7 +509,7 @@ public class ResultsParser {
    private void finishTest()
    {
       currentTest.addClassList(currentClassList);
-      testList.add(currentTest);
+      currentTestList.add(currentTest);
 
       currentClassList = null;
       currentTest = null;

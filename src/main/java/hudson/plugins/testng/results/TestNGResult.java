@@ -19,7 +19,7 @@ import org.kohsuke.stapler.export.Exported;
 public class TestNGResult extends BaseResult implements Serializable {
 
     private static final long serialVersionUID = -3491974223665601995L;
-    private List<TestNGTestResult> testList = new ArrayList<TestNGTestResult>();
+    private List<SuiteResult> suiteList = new ArrayList<SuiteResult>();
     private List<MethodResult> passedTests = new ArrayList<MethodResult>();
     private List<MethodResult> failedTests = new ArrayList<MethodResult>();
     private List<MethodResult> skippedTests = new ArrayList<MethodResult>();
@@ -97,8 +97,8 @@ public class TestNGResult extends BaseResult implements Serializable {
         return skipCount;
     }
 
-    public List<TestNGTestResult> getTestList() {
-        return testList;
+    public List<SuiteResult> getSuiteList() {
+        return suiteList;
     }
 
     @Exported(name = "total")
@@ -141,10 +141,10 @@ public class TestNGResult extends BaseResult implements Serializable {
      * @param testList
      */
     //TODO: whats going on here? why unique?
-    public void addUniqueTests(List<TestNGTestResult> testList) {
-        Set<TestNGTestResult> tmpSet = new HashSet<TestNGTestResult>(this.testList);
-        tmpSet.addAll(testList);
-        this.testList = new ArrayList<TestNGTestResult>(tmpSet);
+    public void addUniqueSuites(List<SuiteResult> suiteList) {
+        Set<SuiteResult> tmpSet = new HashSet<SuiteResult>(this.suiteList);
+        tmpSet.addAll(suiteList);
+        this.suiteList = new ArrayList<SuiteResult>(tmpSet);
     }
 
     public void setRun(Run<?, ?> run) {
@@ -197,21 +197,23 @@ public class TestNGResult extends BaseResult implements Serializable {
         skipCount = skippedTests.size();
 
         packageMap.clear();
-        for (TestNGTestResult _test : testList) {
-            for (ClassResult _class : _test.getClassList()) {
-                String pkg = _class.getPkgName();
-                if (packageMap.containsKey(pkg)) {
-                    List<ClassResult> classResults = packageMap.get(pkg).getChildren();
-                    if (!classResults.contains(_class)) {
-                        classResults.add(_class);
-                    }
-                } else {
-                    PackageResult tpkg = new PackageResult(pkg);
-                    tpkg.getChildren().add(_class);
-                    tpkg.setParent(this);
-                    packageMap.put(pkg, tpkg);
-                }
-            }
+        for(SuiteResult _suite : suiteList) {
+	        for (TestNGTestResult _test : _suite.getTestList()) {
+	            for (ClassResult _class : _test.getClassList()) {
+	                String pkg = _class.getPkgName();
+	                if (packageMap.containsKey(pkg)) {
+	                    List<ClassResult> classResults = packageMap.get(pkg).getChildren();
+	                    if (!classResults.contains(_class)) {
+	                        classResults.add(_class);
+	                    }
+	                } else {
+	                    PackageResult tpkg = new PackageResult(pkg);
+	                    tpkg.getChildren().add(_class);
+	                    tpkg.setParent(this);
+	                    packageMap.put(pkg, tpkg);
+	                }
+	            }
+	        }
         }
 
         startTime = Long.MAX_VALUE;
@@ -225,6 +227,7 @@ public class TestNGResult extends BaseResult implements Serializable {
                 endTime = pkgResult.getEndTime();
             }
         }
+        
     }
 
     @Exported(visibility = 999)

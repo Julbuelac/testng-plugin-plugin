@@ -71,17 +71,24 @@ if (my.result.skippedConfigCount != 0) {
     printMethods("Configuration", "skip-config-tbl", my.result.skippedConfigs, false)
 }
 
-h2("All Tests (grouped by their packages)")
+
+
+h2("All Tests (grouped by their suite)")
 
 a(href:"javascript:toggleTable('all-tbl')") {
     text("hide/expand the table")
 }
 
+if(my.result.packageMap.values().size() == 0) {text("no packages")}
+if(my.result.suiteList.size() == 0) {text("no suites")}
+//if(my.result.suiteList.get(0).testList.get(0).size() > 0) {text("tests")}
+//if(my.result.suiteList.get(0).testList.get(0).classList.get(0).size() > 0) {text("classes")}
+
 table(id:"all-tbl", border:"1px", class:"pane sortable") {
     thead() {
         tr() {
             th(class:"pane-header") {
-                text("Package")
+                text("Suite")
             }
             th(class:"pane-header", style:"width:5em", title:"Duration") {
                 text("Duration")
@@ -144,6 +151,75 @@ table(id:"all-tbl", border:"1px", class:"pane sortable") {
         }
     }
 }
+
+//Second table to display results by suite
+/*table(id:"all-tbl", border:"1px", class:"pane sortable") {
+    thead() {
+        tr() {
+            th(class:"pane-header") {
+                text("Suite")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Duration") {
+                text("Duration")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Failed tests count") {
+                text("Fail")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Failed tests count diff") {
+                text("(diff)")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Skipped tests count") {
+                text("Skip")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Skipped tests count diff") {
+                text("(diff)")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Total tests count") {
+                text("Total")
+            }
+            th(class:"pane-header", style:"width:5em", title:"Total tests count diff") {
+                text("(diff)")
+            }
+//            th(class:"pane-header", style:"width:5em", title:"Package Age") {
+//                text("Age")
+//            }
+        }
+    }
+    tbody () {
+        for (pkg in my.result.packageMap.values()) {
+            def prevPkg = pkg.previousResult
+            tr() {
+                td(align: "left") {
+                    a(href:"${pkg.name}") { text("${pkg.name}") }
+                }
+                td(align: "center") {
+                    text("${FormatUtil.formatTime(pkg.duration)}")
+                }
+                td(align: "center") {
+                    text("${pkg.failCount}")
+                }
+                td(align: "center") {
+                    text("${FormatUtil.formatLong(prevPkg == null ? 0 : pkg.failCount - prevPkg.failCount)}")
+                }
+                td(align: "center") {
+                    text("${pkg.skipCount}")
+                }
+                td(align: "center") {
+                    text("${FormatUtil.formatLong(prevPkg == null ? 0 : pkg.skipCount - prevPkg.skipCount)}")
+                }
+                td(align: "center") {
+                    text("${pkg.totalCount}")
+                }
+                td(align: "center") {
+                    text("${FormatUtil.formatLong(prevPkg == null ? 0 : pkg.totalCount - prevPkg.totalCount)}")
+                }
+//                td(align: "center") {
+//                    text("${pkg.age}")
+//                }
+            }
+        }
+    }
+}*/
 
 /**
  * Prints out the tables containing information about methods executed during test

@@ -220,7 +220,7 @@ public class Publisher extends Recorder implements SimpleBuildStep {
          t.printStackTrace(logger);
       }
 
-      if (results.getTestList().size() > 0) {
+      if (results.getSuiteList().size() > 0) {
          //create an individual report for all of the results and add it to the build
          build.addAction(new TestNGTestResultBuildAction(results, escapeTestDescp, escapeExceptionMsg, showFailedBuilds));
          if (failureOnFailedTestConfig && results.getFailedConfigCount() > 0) {
