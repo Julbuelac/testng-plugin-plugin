@@ -152,6 +152,9 @@ public class TestNGResult extends BaseResult implements Serializable {
         for (PackageResult pkg : packageMap.values()) {
             pkg.setRun(run);
         }
+        for (SuiteResult suite : suiteList) {
+            suite.setRun(run);
+        }
     }
 
     @Override

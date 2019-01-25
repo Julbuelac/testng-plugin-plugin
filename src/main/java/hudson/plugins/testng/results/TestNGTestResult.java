@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import hudson.model.Run;
+
 
 /**
  * Represents a single TestNG XML {@code <test>} tag.
@@ -55,6 +57,14 @@ public class TestNGTestResult extends BaseResult {
 	public float getDuration() {
 		return duration;
 	}
+	
+	 @Override
+	    public void setRun(Run<?, ?> run) {
+	        super.setRun(run);
+	        for (ClassResult _c : this.classList) {
+	            _c.setRun(run);
+	        }
+	    }
 
 
 	/**
