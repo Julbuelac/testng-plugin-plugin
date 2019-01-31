@@ -1,0 +1,25 @@
+.expandIcon{
+	background-image: url(../icons/plus.png);
+		width: 14px;
+		height: 14px;
+		display: inline-block;
+}
+
+.collapseIcon{
+	background-image: url(../icons/minus.png);
+		width: 14px;
+		height: 14px;
+		display: inline-block;
+}
+
+.pass{
+	background-color: #92D050;
+}
+
+.fail{
+	background-color: #F37A7A;
+}
+
+.skip{
+	background-color: #FDED72;
+}

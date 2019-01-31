@@ -53,6 +53,8 @@ public class Publisher extends Recorder implements SimpleBuildStep {
    //number of fails that will trigger "Failed"
    private Integer failedFails = 100;
    private Integer thresholdMode = 2;
+   
+   private boolean packageView;
 
 
    @Extension
@@ -61,38 +63,47 @@ public class Publisher extends Recorder implements SimpleBuildStep {
    @DataBoundConstructor
    public Publisher() {}
 
-   public String getReportFilenamePattern() {
-       return reportFilenamePattern;
-   }
+	public boolean getPackageView() {
+		return packageView;
+	}
+	
+	@DataBoundSetter
+	public void setPackageView(boolean packageView) {
+		this.packageView = packageView;
+	}
 
-   @DataBoundSetter
-   public void setReportFilenamePattern(String reportFilenamePattern) {
-       this.reportFilenamePattern = reportFilenamePattern;
-   }
+	public String getReportFilenamePattern() {
+		return reportFilenamePattern;
+	}
 
-   public boolean getEscapeTestDescp() {
-       return escapeTestDescp;
-   }
+	@DataBoundSetter
+	public void setReportFilenamePattern(String reportFilenamePattern) {
+		this.reportFilenamePattern = reportFilenamePattern;
+	}
 
-   @DataBoundSetter
-   public void setEscapeTestDescp(boolean escapeTestDescp) {
-       this.escapeTestDescp = escapeTestDescp;
-   }
+	public boolean getEscapeTestDescp() {
+		return escapeTestDescp;
+	}
 
-   public boolean getEscapeExceptionMsg() {
-       return escapeExceptionMsg;
-   }
+	@DataBoundSetter
+	public void setEscapeTestDescp(boolean escapeTestDescp) {
+		this.escapeTestDescp = escapeTestDescp;
+	}
 
-   @DataBoundSetter
-   public void setEscapeExceptionMsg(boolean escapeExceptionMsg) {
-       this.escapeExceptionMsg = escapeExceptionMsg;
-   }
+	public boolean getEscapeExceptionMsg() {
+		return escapeExceptionMsg;
+	}
 
-   public boolean getFailureOnFailedTestConfig() {
-       return failureOnFailedTestConfig;
-   }
+	@DataBoundSetter
+	public void setEscapeExceptionMsg(boolean escapeExceptionMsg) {
+		this.escapeExceptionMsg = escapeExceptionMsg;
+	}
 
-   @DataBoundSetter
+	public boolean getFailureOnFailedTestConfig() {
+		return failureOnFailedTestConfig;
+	}
+
+	   @DataBoundSetter
    public void setFailureOnFailedTestConfig(boolean failureOnFailedTestConfig) {
        this.failureOnFailedTestConfig = failureOnFailedTestConfig;
    }
@@ -210,6 +221,7 @@ public class Publisher extends Recorder implements SimpleBuildStep {
       }
 
       TestNGResult results = new TestNGResult();
+      results.setPackageView(packageView);
       try {
          results = TestNGTestResultBuildAction.loadResults(build, logger);
       } catch (Throwable t) {

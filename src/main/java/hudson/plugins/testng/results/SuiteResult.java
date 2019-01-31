@@ -5,7 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.Exported;
+
 import hudson.model.Run;
+import hudson.tasks.test.TestResult;
 
 /**
  * Represents a single TestNG suite {@code <suite>} tag.
@@ -21,6 +26,9 @@ public class SuiteResult extends BaseResult{
 	private float duration;
 	private long startedAt;
 	private long endedAt;
+	private int fail;
+	private int skip;
+	private int pass;
 
 	public SuiteResult(String name, String duration, long startedAt) {
 		super(name);
@@ -37,10 +45,6 @@ public class SuiteResult extends BaseResult{
 
 	 public List<TestNGTestResult> getTestList() {
 	        return testList;
-	    }
-
-	    public String getName() {
-	        return name;
 	    }
 
 	    /**
@@ -78,6 +82,18 @@ public class SuiteResult extends BaseResult{
 			this.endedAt = endedAt;
 		}
 		
+		public int getFailCount() {
+	        return fail;
+	    }
+
+	    public int getSkipCount() {
+	        return skip;
+	    }
+
+	    public int getPassCount() {
+	        return pass;
+	    }
+		
 		public String getSafeName() {
 			return name.replace(" ", "-");
 		}
@@ -89,6 +105,16 @@ public class SuiteResult extends BaseResult{
 		            _t.setRun(run);
 		        }
 		    }
+		 
+		 @Override
+		    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+		        for (TestNGTestResult result : this.getChildren()) {
+		            if (token.equals(result.getSafeName())) {
+		                return result;
+		            }
+		        }
+		        return null;
+		    }
 
 		@Override
 		public List<TestNGTestResult> getChildren() {
@@ -99,4 +125,19 @@ public class SuiteResult extends BaseResult{
 		public boolean hasChildren() {
 			 return testList != null && !testList.isEmpty();
 		}
+		
+		public void tally() {
+			 this.fail = 0;
+		     this.skip = 0;
+		     this.pass = 0;
+		     
+		     for (TestNGTestResult testResult : testList) {
+		    	 this.fail += testResult.getFailCount();
+			     this.skip += testResult.getSkipCount();
+			     this.pass += testResult.getPassCount();
+			     testResult.setParent(this);
+		     }
+		}
+		
+
 }

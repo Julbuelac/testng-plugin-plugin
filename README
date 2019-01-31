@@ -18,6 +18,13 @@ The aim of this fork is to improve how the data is displayed in Jenkins
 Release Notes
 -------
 
+### 1.16
+
+* Added: Test results tables now have a collapsable tree structure
+* Added: New default way to display results as (Suite/Test/Class/Method(with description) can be switched back to old view (package/class/method) in settings
+* Added: Added SuiteResult and modified the other results to reflect the new result structure
+* Added: Modified the parser to populate the new result structure
+
 ### FORK STARTS HERE ###
 
 ### 1.15

@@ -1,4 +1,4 @@
-package hudson.plugins.testng.results.SuiteResult
+package hudson.plugins.testng.results.TestNGTestResult
 
 f = namespace(lib.FormTagLib)
 l = namespace(lib.LayoutTagLib)
@@ -9,8 +9,7 @@ l.layout(title: "Test - ${my.name}") {
     st.include(page: "sidepanel.jelly", it: my.run)
     l.main_panel() {
 
-        h1("Suite ${my.name}")
-        st.include(page: "bar.groovy")
+        h1("Test ${my.name}")
         st.include(page: "reportDetail.groovy")
     }
 }

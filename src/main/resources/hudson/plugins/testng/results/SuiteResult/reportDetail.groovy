@@ -28,10 +28,10 @@ table(id:"tests", border:"1px", class:"pane sortable") {
     }
     tbody() {
         for (test in my.children) {
-            def prevClazz = test.previousResult
+            def prevTest = test.previousResult
             tr() {
                 td(align:"left") {
-                    a(href:"${test.upUrl}") {
+                    a(href:"${test.safeName}") {
                         text("${test.name}")
                     }
                 }
@@ -41,4 +41,5 @@ table(id:"tests", border:"1px", class:"pane sortable") {
             }
         }
     }
+ }
 }

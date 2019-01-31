@@ -45,7 +45,7 @@ for (group in my.testRunMap.values()) {
                     for(method in group.testMethods) {
                         tr() {
                             td(align:"left") {
-                                a(href:"${method.upUrl}") {
+                                a(href:"${method.name}") {
                                     text("${method.name}")
                                 }
                                 if (method.groups || method.testInstanceName || method.parameters?.size() > 0) {

@@ -6,6 +6,10 @@ import java.util.*;
 
 import hudson.model.Run;
 import hudson.plugins.testng.PluginImpl;
+import hudson.tasks.test.TestResult;
+
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 
 /**
@@ -33,6 +37,8 @@ public class TestNGResult extends BaseResult implements Serializable {
     private int failedConfigCount;
     private int skippedConfigCount;
     private Map<String, PackageResult> packageMap = new HashMap<String, PackageResult>();
+    // Determines if the view shows the tests sorted by suite (default) or by package
+    private boolean packageView = false;
 
     /**
      * @param name input name is ignored
@@ -135,7 +141,15 @@ public class TestNGResult extends BaseResult implements Serializable {
         return packageMap.keySet();
     }
 
-    /**
+    public boolean isPackageView() {
+		return packageView;
+	}
+
+	public void setPackageView(boolean packageView) {
+		this.packageView = packageView;
+	}
+
+	/**
      * Adds only the {@code <test>}s that already aren't part of the list.
      *
      * @param testList
@@ -203,20 +217,25 @@ public class TestNGResult extends BaseResult implements Serializable {
         for(SuiteResult _suite : suiteList) {
 	        for (TestNGTestResult _test : _suite.getTestList()) {
 	            for (ClassResult _class : _test.getClassList()) {
-	                String pkg = _class.getPkgName();
+	            	_class.tally();
+	            	ClassResult _classCopy = new ClassResult(_class.getPkgName(),_class.getName());
+	                String pkg = _classCopy.getPkgName();
 	                if (packageMap.containsKey(pkg)) {
 	                    List<ClassResult> classResults = packageMap.get(pkg).getChildren();
-	                    if (!classResults.contains(_class)) {
-	                        classResults.add(_class);
+	                    if (!classResults.contains(_classCopy)) {
+	                        classResults.add(_classCopy);
 	                    }
 	                } else {
 	                    PackageResult tpkg = new PackageResult(pkg);
-	                    tpkg.getChildren().add(_class);
+	                    tpkg.getChildren().add(_classCopy);
 	                    tpkg.setParent(this);
 	                    packageMap.put(pkg, tpkg);
 	                }
 	            }
+	            _test.tally();
 	        }
+	        _suite.setParent(this);
+	        _suite.tally();
         }
 
         startTime = Long.MAX_VALUE;
@@ -247,14 +266,27 @@ public class TestNGResult extends BaseResult implements Serializable {
     public String getDisplayName() {
         return getName();
     }
+    
+    @Override
+    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+        for (TestResult result : this.getChildren()) {
+            if (token.equals(result.getSafeName())) {
+                return result;
+            }
+        }
+        return null;
+    }
 
     @Override
-    public Collection<PackageResult> getChildren() {
-        return packageMap.values();
+    public Collection<? extends BaseResult> getChildren() {
+       if(packageView) return packageMap.values();
+       else return suiteList;
     }
 
     @Override
     public boolean hasChildren() {
-        return !packageMap.isEmpty();
+    	if(packageView) return packageMap.values().isEmpty();
+    	else return !suiteList.isEmpty();
     }
+
 }

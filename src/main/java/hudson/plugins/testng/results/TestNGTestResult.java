@@ -5,7 +5,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+
 import hudson.model.Run;
+import hudson.tasks.test.TestResult;
 
 
 /**
@@ -22,6 +26,9 @@ public class TestNGTestResult extends BaseResult {
     private  long startTime;
     private  long endTime;
     private  float duration;
+	private int fail;
+	private int skip;
+	private int pass;
 
 
     public TestNGTestResult(String name, long startTime, String duration) {
@@ -45,6 +52,10 @@ public class TestNGTestResult extends BaseResult {
     public String getName() {
         return name;
     }
+    
+    public String getSafeName() {
+    	return name.replace(" ", "-");
+    }
 
     public long getStartTime() {
 		return startTime;
@@ -58,6 +69,18 @@ public class TestNGTestResult extends BaseResult {
 		return duration;
 	}
 	
+	public int getFailCount() {
+        return fail;
+    }
+
+    public int getSkipCount() {
+        return skip;
+    }
+
+    public int getPassCount() {
+        return pass;
+    }
+	
 	 @Override
 	    public void setRun(Run<?, ?> run) {
 	        super.setRun(run);
@@ -66,6 +89,15 @@ public class TestNGTestResult extends BaseResult {
 	        }
 	    }
 
+	 @Override
+	    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+	        for (ClassResult result : this.getChildren()) {
+	            if (token.equals(result.getName())) {
+	                return result;
+	            }
+	        }
+	        return null;
+	    }
 
 	/**
      * Adds only the classes that already aren't part of the list
@@ -86,6 +118,20 @@ public class TestNGTestResult extends BaseResult {
 	@Override
 	public boolean hasChildren() {
 		  return classList != null && !classList.isEmpty();
+	}
+	
+	public void tally() {
+		 this.fail = 0;
+	     this.skip = 0;
+	     this.pass = 0;
+	     
+	     for (ClassResult classResult : classList) {
+	    	 this.fail += classResult.getFailCount();
+		     this.skip += classResult.getSkipCount();
+		     this.pass += classResult.getPassCount();
+		     classResult.setParent(this);
+
+	     }
 	}
 
 }

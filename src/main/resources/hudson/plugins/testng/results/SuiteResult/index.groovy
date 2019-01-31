@@ -10,7 +10,6 @@ l.layout(title: "Test Suite - ${my.name}") {
     l.main_panel() {
 
         h1("Suite ${my.name}")
-        st.include(page: "bar.groovy")
         st.include(page: "reportDetail.groovy")
     }
 }
