@@ -14,22 +14,28 @@ public String setColorClass(result) {
 	return "";
 }
 
-public String tableDisplay(display) {
-	if (display) return "table";
+public String pkgDisplay(display) {
+	if (display) return "block";
 	return "none";
 }
 
 link(href:"${app.rootUrl}plugin/testng-plugin/css/table.css", rel:"stylesheet", type:"text/css")
 
+script(type: "text/javascript"){
+	text("var showPkgView = ${my.result.packageView};")
+}
 script(type: "text/javascript", src: "${app.rootUrl}plugin/testng-plugin/js/toggle_mthd_summary.js")
 script(type: "text/javascript", src: "${app.rootUrl}plugin/testng-plugin/js/expand_collapse_table.js")
+script(type: "text/javascript", src: "${app.rootUrl}plugin/testng-plugin/js/select_view.js")
 
+
+button(onclick:"toggleView()") { text("Toggle view") }
 
 h2("Failed Tests")
 
 if (my.result.failCount != 0) {
 	//a(href: "javascript:toggleTable('fail-tbl')") { text("hide/expand the table") }
-	table(id:"fail-tbl", border:"1px", class:"pane sortable") {
+	table(id:"fail-tbl", border:"1px", class:"pane sortable pkgView") {
 		thead() {
 			tr() {
 				th(class: "pane-header") { text("Test Method") }
@@ -70,18 +76,18 @@ if (my.result.skippedConfigCount != 0) {
 	printMethods("Configuration", "skip-config-tbl", my.result.skippedConfigs, false)
 }
 
+div(class:"pkgView", style: "display: "+ pkgDisplay(my.result.packageView)){
 
 h2("All Tests (grouped by their suite)")
 
-button(onclick:"expandTable('"+activeTable(my.result.packageView)+"')") { text("Expand the table") }
+button(onclick:"expandTable('all-tbl-pkg')") { text("Expand the table") }
 
-button(onclick:"collapseTable('"+activeTable(my.result.packageView)+"')") { text("Collapse the table") }
-
-//button(onclick:"collapseTable('all-tbl')") { text("change display mode") }
+button(onclick:"collapseTable('all-tbl-pkg')") { text("Collapse the table") }
 
 
 
-	table(id:"all-tbl", border:"1px", class:"pane sortable", style: "display: "+pkgDisplay(my.result.packageView)+";") {
+
+	table(id:"all-tbl-pkg", border:"1px", class:"pane sortable") {
 		thead() {
 			tr() {
 				th(class:"pane-header") { text("Suite") }
@@ -102,7 +108,7 @@ button(onclick:"collapseTable('"+activeTable(my.result.packageView)+"')") { text
 				def prevPkg = pkg.previousResult
 				tr() {
 					td(align: "left") {
-						a(href:"${pkg.name}") { text("${pkg.name}") }
+						a(href:"package/${pkg.name}") { text("${pkg.name}") }
 					}
 					td(align: "center") { text("${FormatUtil.formatTime(pkg.duration)}") }
 					td(align: "center") { text("${pkg.failCount}") }
@@ -118,11 +124,19 @@ button(onclick:"collapseTable('"+activeTable(my.result.packageView)+"')") { text
 			}
 		}
 	}
-
+}
+//TODO: fix
+div(class:"suiteView", style: "display: " + pkgDisplay(!my.result.packageView)){
+	
+	h2("All Tests (grouped by their suite)")
+	
+	button(onclick:"expandTable('all-tbl-suite')") { text("Expand the table") }
+	
+	button(onclick:"collapseTable('all-tbl-suite')") { text("Collapse the table") }
 
 
 	//Second table to display results by suite
-	table(id:"all-tbl", border:"1px", class:"pane sortable" style: "display: "+pkgDisplay(!my.result.packageView)+";") {
+	table(id:"all-tbl-suite", border:"1px", class:"pane sortable") {
 		thead() {
 			tr() {
 				th(class:"pane-header") { text("Suite/Test/Class/Method/Description") }
@@ -137,7 +151,7 @@ button(onclick:"collapseTable('"+activeTable(my.result.packageView)+"')") { text
 				tr(id:"${suite.safeName}") {
 					td(align: "left", style:"padding-left:0.5em;") {
 						span(title:"Show children", onclick:"expandTableRow('${suite.safeName}')", class:"expandIcon")
-						a(href:"${suite.safeName}") { text("${suite.name}") }
+						a(href:"suite/${suite.safeName}") { text("${suite.name}") }
 					}
 					td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
 					td(align: "center", class: setColorClass(suite)) {
@@ -197,7 +211,7 @@ button(onclick:"collapseTable('"+activeTable(my.result.packageView)+"')") { text
 
 		}
 	}
-
+}
 
 /**
  * Prints out the tables containing information about methods executed during test

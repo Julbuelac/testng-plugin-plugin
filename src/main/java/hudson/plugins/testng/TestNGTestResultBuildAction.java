@@ -16,6 +16,8 @@ import hudson.model.Api;
 import hudson.model.Run;
 import hudson.plugins.testng.parser.ResultsParser;
 import hudson.plugins.testng.results.MethodResult;
+import hudson.plugins.testng.results.PackageResult;
+import hudson.plugins.testng.results.SuiteResult;
 import hudson.plugins.testng.results.TestNGResult;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -174,6 +176,20 @@ public class TestNGTestResultBuildAction extends AbstractTestResultAction implem
         return PluginImpl.URL;
     }
 
+    public SuiteResult getSuite(String arg) {
+   	 for (SuiteResult suite : getResult().getSuiteList()) {
+   		 if (arg.equals(suite.getSafeName())) return suite;
+   	 }
+   	 return null;
+   }
+   
+   public PackageResult getPackage(String arg) {
+  	 for (PackageResult pkg : getResult().getPackageList()) {
+  		 if (arg.equals(pkg.getSafeName())) return pkg;
+  	 }
+  	 return null;
+  }
+    
     public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
         return getResult().getDynamic(token, req, rsp);
     }

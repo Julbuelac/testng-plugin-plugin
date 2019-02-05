@@ -95,11 +95,6 @@ public class PackageResult extends BaseResult {
     public int getPassCount() {
         return pass;
     }
-    
-    //Same as getName, implemented for TestNGResult.getDynamic()
-    public String getSafeName() {
-		return name;
-	}
 
     /**
      * Gets all the method results related to this package sorted by the time
