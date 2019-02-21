@@ -10,6 +10,8 @@ import hudson.tasks.test.TestResult;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import hudson.util.Graph;
+import jenkins.model.Jenkins;
+
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -20,7 +22,7 @@ import org.kohsuke.stapler.export.Exported;
  */
 @SuppressWarnings("serial")
 public class MethodResult extends BaseResult {
-
+	
     //pass, fail or skip status
     private String status;
     //test description if any from @Test annotation
@@ -58,8 +60,10 @@ public class MethodResult extends BaseResult {
      * unique id for this test method
      */
     private String testUuid;
+    private ClassResult parentClass;
 
-    public MethodResult(String name,
+
+	public MethodResult(String name,
                         String status,
                         String description,
                         String duration,
@@ -95,6 +99,7 @@ public class MethodResult extends BaseResult {
           */
             this.isConfig = true;
         }
+        else this.isConfig = false;
     }
 
     public void setTestUuid(String testUuid) {
@@ -420,6 +425,41 @@ public class MethodResult extends BaseResult {
     public String getReporterOutput() {
         return reporterOutput;
     }
+    
+    public String getUpUrlSuite() {
+        Jenkins j = Jenkins.getInstance();
+        return j != null ? 
+        		j.getRootUrl() + 
+        		run.getUrl() + 
+        		getSuiteUrl() 
+        		: "";
+    }
+    
+    public ClassResult getParentClass() {
+		return this.parentClass;
+    }
+    
+    public void setParentClass(ClassResult clazz) {
+		this.parentClass = clazz;
+    }
+	
+	public String getSuiteUrl(){
+		return this.getParentClass().getSuiteUrl()+this.getSafeName()+"/";
+	}
+	
+	public String getUpUrlPkg() {
+        Jenkins j = Jenkins.getInstance();
+        return j != null ? 
+        		j.getRootUrl() + 
+        		run.getUrl() + 
+        		getPkgUrl() 
+        		: "";
+    }
+	
+	
+	public String getPkgUrl(){
+		return this.getParentClass().getPkgUrl() + this.getSafeName()+"/";
+	}
 
     @Override
     public Collection<? extends TestResult> getChildren() {
@@ -430,4 +470,14 @@ public class MethodResult extends BaseResult {
     public boolean hasChildren() {
         return false;
     }
+
+	@Override
+	public BaseResult getSuiteParent() {
+		return this.parentClass;
+	}
+
+	@Override
+	public List<? extends BaseResult> getSuiteChildren() {
+		return null;
+	}
 }

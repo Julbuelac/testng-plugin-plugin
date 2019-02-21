@@ -60,7 +60,6 @@ public class ResultsParser {
    /*
     * We maintain only a single ClassResult for all <class>s with the same fqdn
     */
-   private Map<String, ClassResult> classResultMap = new HashMap<String, ClassResult>();
    private StringBuilder reporterOutputBuilder;
    private Map<String, List<String>> methodGroupMap = new HashMap<String, List<String>>();
    private TestNGResult finalResults;
@@ -454,7 +453,6 @@ public class ResultsParser {
 
    private void finishTestMethod()
    {
-      updateTestMethodLists(currentMethod);
       // add to test methods list for each class
       currentMethodList.add(currentMethod);
 
@@ -468,12 +466,7 @@ public class ResultsParser {
               name : name.substring(idx + 1, name.length());
       String pkgName = idx == -1 ?
               PackageResult.NO_PKG_NAME : name.substring(0, idx);
-      if (classResultMap.containsKey(name)) {
-         currentClass = classResultMap.get(name);
-      } else {
-         currentClass = new ClassResult(pkgName, simpleName);
-         classResultMap.put(name, currentClass);
-      }
+      currentClass = new ClassResult(pkgName, simpleName);
       currentMethodList = new ArrayList<MethodResult>();
       //reset for each class
       currentTestRunId = UUID.randomUUID().toString();
@@ -515,23 +508,7 @@ public class ResultsParser {
       currentTest = null;
    }
 
-   private void updateTestMethodLists(MethodResult testMethod) {
-      if (testMethod.isConfig()) {
-         if ("FAIL".equals(testMethod.getStatus())) {
-            finalResults.getFailedConfigs().add(testMethod);
-         } else if ("SKIP".equals(testMethod.getStatus())) {
-            finalResults.getSkippedConfigs().add(testMethod);
-         }
-      } else {
-         if ("FAIL".equals(testMethod.getStatus())) {
-            finalResults.getFailedTests().add(testMethod);
-         } else if ("SKIP".equals(testMethod.getStatus())) {
-            finalResults.getSkippedTests().add(testMethod);
-         } else if ("PASS".equals(testMethod.getStatus())) {
-            finalResults.getPassedTests().add(testMethod);
-         }
-      }
-   }
+
 
    private String get(String attr)
    {

@@ -31,13 +31,15 @@ public class TestNGProjectAction extends TestResultProjectAction implements Prom
    private transient boolean escapeTestDescp;
    private transient boolean escapeExceptionMsg;
    private transient boolean showFailedBuilds;
+   private transient boolean packageView;
 
    public TestNGProjectAction(Job<?, ?> project,
-         boolean escapeTestDescp, boolean escapeExceptionMsg, boolean showFailedBuilds) {
+         boolean escapeTestDescp, boolean escapeExceptionMsg, boolean showFailedBuilds, boolean packageView) {
       super(project);
       this.escapeExceptionMsg = escapeExceptionMsg;
       this.escapeTestDescp = escapeTestDescp;
       this.showFailedBuilds = showFailedBuilds;
+      this.packageView = packageView;
    }
 
    protected Class<TestNGTestResultBuildAction> getBuildActionClass() {
@@ -239,4 +241,9 @@ public class TestNGProjectAction extends TestResultProjectAction implements Prom
    public int getGraphHeight() {
       return 200;
    }
+
+public boolean getPackageView() {
+	return packageView;
+}
+
 }

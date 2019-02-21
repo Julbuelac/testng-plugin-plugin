@@ -19,274 +19,312 @@ import org.kohsuke.stapler.export.Exported;
  * @author nullin
  * @author farshidce
  */
-@SuppressFBWarnings(value="SE_BAD_FIELD", justification="ArrayList is Serializable")
+@SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "ArrayList is Serializable")
 public class TestNGResult extends BaseResult implements Serializable {
 
-    private static final long serialVersionUID = -3491974223665601995L;
-    private List<SuiteResult> suiteList = new ArrayList<SuiteResult>();
-    private List<MethodResult> passedTests = new ArrayList<MethodResult>();
-    private List<MethodResult> failedTests = new ArrayList<MethodResult>();
-    private List<MethodResult> skippedTests = new ArrayList<MethodResult>();
-    private List<MethodResult> failedConfigurationMethods = new ArrayList<MethodResult>();
-    private List<MethodResult> skippedConfigurationMethods = new ArrayList<MethodResult>();
-    private long startTime;
-    private long endTime;
-    private int passCount;
-    private int failCount;
-    private int skipCount;
-    private int failedConfigCount;
-    private int skippedConfigCount;
-    private Map<String, PackageResult> packageMap = new HashMap<String, PackageResult>();
-    // Determines if the view shows the tests sorted by suite (default) or by package
-    private boolean packageView = false;
+	private static final long serialVersionUID = -3491974223665601995L;
+	private List<SuiteResult> suiteList = new ArrayList<SuiteResult>();
+	private List<MethodResult> passedTests = new ArrayList<MethodResult>();
+	private List<MethodResult> failedTests = new ArrayList<MethodResult>();
+	private List<MethodResult> skippedTests = new ArrayList<MethodResult>();
+	private List<MethodResult> failedConfigurationMethods = new ArrayList<MethodResult>();
+	private List<MethodResult> skippedConfigurationMethods = new ArrayList<MethodResult>();
+	private long startTime;
+	private long endTime;
+	private int passCount;
+	private int failCount;
+	private int skipCount;
+	private int failedConfigCount;
+	private int skippedConfigCount;
+	private int passedConfigCount = 0;;
+	private Map<String, PackageResult> packageMap = new HashMap<String, PackageResult>();
+	// Determines if the view shows the tests sorted by suite (default) or by
+	// package
 
-    /**
-     * @param name input name is ignored
-     * @deprecated don't use this constructor
-     */
-    public TestNGResult(String name) {
-        super(PluginImpl.URL);
-    }
-
-    public TestNGResult() {
-        super(PluginImpl.URL);
-    }
-
-    @Override
-    public String getTitle() {
-        return getDisplayName();
-    }
-
-    @Override
-    public List<MethodResult> getFailedTests() {
-        return failedTests;
-    }
-
-    @Override
-    public List<MethodResult> getPassedTests() {
-        return passedTests;
-    }
-
-    @Override
-    public List<MethodResult> getSkippedTests() {
-        return skippedTests;
-    }
-
-    public List<MethodResult> getFailedConfigs() {
-        return failedConfigurationMethods;
-    }
-
-    public List<MethodResult> getSkippedConfigs() {
-        return skippedConfigurationMethods;
-    }
-
-    /**
-     * Gets the total number of passed tests.
-     */
-    public int getPassCount() {
-        return passCount;
-    }
-
-    /**
-     * Gets the total number of failed tests.
-     */
-    @Exported
-    public int getFailCount() {
-        return failCount;
-    }
-
-    /**
-     * Gets the total number of skipped tests.
-     */
-    @Exported
-    public int getSkipCount() {
-        return skipCount;
-    }
-
-    public List<SuiteResult> getSuiteList() {
-        return suiteList;
-    }
-
-    @Exported(name = "total")
-    public int getTotalCount() {
-        return super.getTotalCount();
-    }
-
-    @Exported
-    @Override
-    public float getDuration() {
-        return (float) (endTime - startTime) / 1000f;
-    }
-
-    @Exported(name = "fail-config")
-    public int getFailedConfigCount() {
-        return failedConfigCount;
-    }
-
-    @Exported(name = "skip-config")
-    public int getSkippedConfigCount() {
-        return skippedConfigCount;
-    }
-
-    @Exported(name = "package")
-    public Collection<PackageResult> getPackageList() {
-        return packageMap.values();
-    }
-
-    public Map<String, PackageResult> getPackageMap() {
-        return packageMap;
-    }
-
-    public Set<String> getPackageNames() {
-        return packageMap.keySet();
-    }
-
-    public boolean isPackageView() {
-		return packageView;
+	/**
+	 * @param name input name is ignored
+	 * @deprecated don't use this constructor
+	 */
+	public TestNGResult(String name) {
+		super(PluginImpl.URL);
 	}
 
-	public void setPackageView(boolean packageView) {
-		this.packageView = packageView;
+	public TestNGResult() {
+		super(PluginImpl.URL);
+	}
+
+	@Override
+	public String getTitle() {
+		return getDisplayName();
+	}
+
+	@Override
+	public List<MethodResult> getFailedTests() {
+		return failedTests;
+	}
+
+	@Override
+	public List<MethodResult> getPassedTests() {
+		return passedTests;
+	}
+
+	@Override
+	public List<MethodResult> getSkippedTests() {
+		return skippedTests;
+	}
+
+	public List<MethodResult> getFailedConfigs() {
+		return failedConfigurationMethods;
+	}
+
+	public List<MethodResult> getSkippedConfigs() {
+		return skippedConfigurationMethods;
 	}
 
 	/**
-     * Adds only the {@code <test>}s that already aren't part of the list.
-     *
-     * @param testList
-     */
-    //TODO: whats going on here? why unique?
-    public void addUniqueSuites(List<SuiteResult> suiteList) {
-        Set<SuiteResult> tmpSet = new HashSet<SuiteResult>(this.suiteList);
-        tmpSet.addAll(suiteList);
-        this.suiteList = new ArrayList<SuiteResult>(tmpSet);
-    }
+	 * Gets the total number of passed tests.
+	 */
+	public int getPassCount() {
+		return passCount;
+	}
 
-    public void setRun(Run<?, ?> run) {
-        this.run = run;
-        for (PackageResult pkg : packageMap.values()) {
-            pkg.setRun(run);
-        }
-        for (SuiteResult suite : suiteList) {
-            suite.setRun(run);
-        }
-    }
+	/**
+	 * Gets the total number of failed tests.
+	 */
+	@Exported
+	public int getFailCount() {
+		return failCount;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TestNGResult testngResult = (TestNGResult) o;
-        return run == null ? testngResult.run == null
-                : run.equals(testngResult.run);
-    }
+	/**
+	 * Gets the total number of skipped tests.
+	 */
+	@Exported
+	public int getSkipCount() {
+		return skipCount;
+	}
 
-    @Override
-    public int hashCode() {
-        int result;
-        result = (run != null ? run.hashCode() : 0);
-        return result;
-    }
+	public List<SuiteResult> getSuiteList() {
+		return suiteList;
+	}
 
-    @Override
-    public String toString() {
-        return String.format("TestNGResult {" +
-                "totalTests=%d, " +
-                "failedTests=%d, skippedTests=%d, failedConfigs=%d, " +
-                "skippedConfigs=%d}", //name,
-                passCount + failCount + skipCount, failCount,
-                skipCount, failedConfigCount,
-                skippedConfigCount);
-    }
+	@Exported(name = "total")
+	public int getTotalCount() {
+		return super.getTotalCount();
+	}
 
-    /**
-     * Updates the calculated fields
-     */
-    @Override
-    public void tally() {
-        failedConfigCount = failedConfigurationMethods.size();
-        skippedConfigCount = skippedConfigurationMethods.size();
-        failCount = failedTests.size();
-        passCount = passedTests.size();
-        skipCount = skippedTests.size();
+	@Exported
+	@Override
+	public float getDuration() {
+		return (float) (endTime - startTime) / 1000f;
+	}
 
-        packageMap.clear();
-        for(SuiteResult _suite : suiteList) {
-	        for (TestNGTestResult _test : _suite.getTestList()) {
-	            for (ClassResult _class : _test.getClassList()) {
-	            	_class.tally();
-	            	ClassResult _classCopy = new ClassResult(_class.getPkgName(),_class.getName());
-	                String pkg = _classCopy.getPkgName();
-	                if (packageMap.containsKey(pkg)) {
-	                    List<ClassResult> classResults = packageMap.get(pkg).getChildren();
-	                    if (!classResults.contains(_classCopy)) {
-	                        classResults.add(_classCopy);
-	                    }
-	                } else {
-	                    PackageResult tpkg = new PackageResult(pkg);
-	                    tpkg.getChildren().add(_classCopy);
-	                    tpkg.setParent(this);
-	                    packageMap.put(pkg, tpkg);
-	                }
-	            }
-	            _test.tally();
-	        }
-	        _suite.setParent(this);
-	        _suite.tally();
-        }
+	@Exported(name = "fail-config")
+	public int getFailedConfigCount() {
+		return failedConfigCount;
+	}
 
-        startTime = Long.MAX_VALUE;
-        endTime = 0;
-        for (PackageResult pkgResult : packageMap.values()) {
-            pkgResult.tally();
-            if (this.startTime > pkgResult.getStartTime()) {
-                startTime = pkgResult.getStartTime(); //cf. ClassResult#tally()
-            }
-            if (this.endTime < pkgResult.getEndTime()) {
-                endTime = pkgResult.getEndTime();
-            }
-        }
-        
-    }
+	@Exported(name = "skip-config")
+	public int getSkippedConfigCount() {
+		return skippedConfigCount;
+	}
+	
+	@Exported(name = "pass-config")
+	public int getPassedConfigCount() {
+		return passedConfigCount;
+	}
 
-    @Exported(visibility = 999)
-    public String getName() {
-        return name;
-    }
+	
+	@Exported(name = "all-config")
+	public int getTotalConfigCount() {
+		return passedConfigCount+skippedConfigCount+failedConfigCount;
+	}
+	
+	@Exported(name = "package")
+	public Collection<PackageResult> getPackageList() {
+		return packageMap.values();
+	}
 
-    @Override
-    public BaseResult getParent() {
-        return null;
-    }
+	public Map<String, PackageResult> getPackageMap() {
+		return packageMap;
+	}
 
-    @Override
-    public String getDisplayName() {
-        return getName();
-    }
-    
-    @Override
-    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
-        for (TestResult result : this.getChildren()) {
-            if (token.equals(result.getSafeName())) {
-                return result;
-            }
-        }
-        return null;
-    }
+	public Set<String> getPackageNames() {
+		return packageMap.keySet();
+	}
 
-    @Override
-    public Collection<? extends BaseResult> getChildren() {
-       if(packageView) return packageMap.values();
-       else return suiteList;
-    }
+	/**
+	 * Adds only the {@code <suite>}s that already aren't part of the list.
+	 *
+	 * @param testList
+	 */
+	// TODO: whats going on here? why unique?
+	public void addUniqueSuites(List<SuiteResult> suiteList) {
+		Set<SuiteResult> tmpSet = new HashSet<SuiteResult>(this.suiteList);
+		tmpSet.addAll(suiteList);
+		this.suiteList = new ArrayList<SuiteResult>(tmpSet);
+	}
 
-    @Override
-    public boolean hasChildren() {
-    	if(packageView) return packageMap.values().isEmpty();
-    	else return !suiteList.isEmpty();
-    }
+	public void setRun(Run<?, ?> run) {
+		this.run = run;
+		for (PackageResult pkg : packageMap.values()) {
+			pkg.setRun(run);
+		}
+		for (SuiteResult suite : suiteList) {
+			suite.setRun(run);
+		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		TestNGResult testngResult = (TestNGResult) o;
+		return run == null ? testngResult.run == null : run.equals(testngResult.run);
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		result = (run != null ? run.hashCode() : 0);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		return String.format(
+				"TestNGResult {" + "totalTests=%d, " + "failedTests=%d, skippedTests=%d, failedConfigs=%d, "
+						+ "skippedConfigs=%d}", // name,
+				passCount + failCount + skipCount, failCount, skipCount, failedConfigCount, skippedConfigCount);
+	}
+
+	private void updateTestMethodLists(MethodResult testMethod) {
+		if (testMethod.isConfig()) {
+			if ("FAIL".equals(testMethod.getStatus())) {
+				this.getFailedConfigs().add(testMethod);
+			} else if ("SKIP".equals(testMethod.getStatus())) {
+				this.getSkippedConfigs().add(testMethod);
+			}
+			else if ("PASS".equals(testMethod.getStatus())) {
+				this.passedConfigCount++;
+			}
+		} else {
+			if ("FAIL".equals(testMethod.getStatus())) {
+				this.getFailedTests().add(testMethod);
+			} else if ("SKIP".equals(testMethod.getStatus())) {
+				this.getSkippedTests().add(testMethod);
+			} else if ("PASS".equals(testMethod.getStatus())) {
+				this.getPassedTests().add(testMethod);
+			}
+		}
+	}
+
+	/**
+	 * Updates the calculated fields
+	 */
+	@Override
+	public void tally() {
+		packageMap.clear();
+		for (SuiteResult suite : suiteList) {
+
+			for (TestNGTestResult test : suite.getTestList()) {
+				for (ClassResult _class : test.getClassList()) {
+					for (MethodResult _method : _class.getChildren()) {
+						updateTestMethodLists(_method);
+					}
+					_class.tally();
+					String pkg = _class.getPkgName();
+					if (packageMap.containsKey(pkg)) {
+						Map<String, ClassResult> classResults = packageMap.get(pkg).getClassMap();
+						if (!classResults.containsKey(_class.name)) {
+							classResults.put(_class.name, _class);
+						} else {
+							classResults.get(_class.name).addTestMethods(_class.getTestMethods());
+						}
+					} else {
+						PackageResult tpkg = new PackageResult(pkg);
+						tpkg.getClassMap().put(_class.name, _class);
+						tpkg.setParent(this);
+						tpkg.setTestNGResult(this);
+						packageMap.put(pkg, tpkg);
+					}
+				}
+				test.tally();
+			}
+			suite.setTestNGResult(this);
+			suite.tally();
+		}
+
+
+
+		failedConfigCount = failedConfigurationMethods.size();
+		skippedConfigCount = skippedConfigurationMethods.size();
+		failCount = failedTests.size();
+		passCount = passedTests.size();
+		skipCount = skippedTests.size();
+
+		startTime = Long.MAX_VALUE;
+		endTime = 0;
+		for (PackageResult pkgResult : packageMap.values()) {
+			pkgResult.tally();
+			if (this.startTime > pkgResult.getStartTime()) {
+				startTime = pkgResult.getStartTime(); // cf. ClassResult#tally()
+			}
+			if (this.endTime < pkgResult.getEndTime()) {
+				endTime = pkgResult.getEndTime();
+			}
+		}
+
+	}
+
+	@Exported(visibility = 999)
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public BaseResult getParent() {
+		return null;
+	}
+	
+	@Override
+	public BaseResult getSuiteParent() {
+		return null;
+	}
+	
+	@Override
+	public List<? extends BaseResult> getSuiteChildren() {
+		return this.suiteList;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return getName();
+	}
+
+	@Override
+	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+		
+		for (TestResult result : this.getChildren()) {
+			if (token.equals(result.getSafeName())) {
+				return result;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Collection<? extends BaseResult> getChildren() {
+		return packageMap.values();
+	}
+
+	@Override
+	public boolean hasChildren() {
+		return packageMap.values().isEmpty();
+	}
 
 }

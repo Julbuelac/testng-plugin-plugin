@@ -23,3 +23,23 @@
 .skip{
 	background-color: #FDED72;
 }
+
+td.rootRowPadding{
+	padding-left:0.5em
+}
+
+td.subRow1Padding {
+	padding-left:2.5em
+}
+
+td.subRow2Padding {
+	padding-left:4.5em
+}
+
+td.subRow3Padding{
+	padding-left:6.5em
+}
+
+td{
+	height:4em;
+}

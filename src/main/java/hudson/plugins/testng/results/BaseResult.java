@@ -1,6 +1,7 @@
 package hudson.plugins.testng.results;
 
 import java.io.Serializable;
+import java.util.List;
 
 import hudson.model.ModelObject;
 import hudson.model.Run;
@@ -43,10 +44,10 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
     public BaseResult getParent() {
         return parent;
     }
-
+    
     public void setParent(BaseResult parent) {
         this.parent = parent;
-    }
+}
 
     @Override
     public Run<?, ?> getRun() {
@@ -75,6 +76,7 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
         		getId() 
         		: "";
     }
+    
 
     @Override
     public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
@@ -142,7 +144,37 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
         }
         return null;
     }
+    
+    public BaseResult findCorrespondingResultSuite(String id) {
+        if (getSuiteId().equals(id) || id == null) {
+            return this;
+        }
 
+        int sepIdx = id.indexOf('/');
+        if (sepIdx < 0) {
+            if (getSafeName().equals(id)) {
+                return this;
+            }
+        } else {
+            String currId = id.substring(0, sepIdx);
+            if (!getSafeName().equals(currId)) {
+                return null;
+            }
+
+            String childId = id.substring(sepIdx + 1);
+            sepIdx = childId.indexOf('/');
+
+            for (BaseResult result : this.getSuiteChildren()) {
+                if (sepIdx < 0 && childId.equals(result.getSafeName())) {
+                    return result;
+                } else if (sepIdx > 0 && result.getSafeName().equals(childId.substring(0, sepIdx))) {
+                    return result.findCorrespondingResultSuite(childId);
+                }
+            }
+        }
+        return null;
+    }
+    
 
     /**
      * Gets the age of a result
@@ -158,5 +190,46 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
             return 1 + result.getAge();
         }
     }
+    
+    /**
+     * Gets the counter part of this {@link TestResult} in the previous run.
+     *
+     * @return null if no such counter part exists.
+     */
+    public TestResult getPreviousResultSuite() {
+        Run<?,?> b = getRun();
+        if (b == null) {
+            return null;
+        }
+        while(true) {
+            b = b.getPreviousBuild();
+            if(b==null)
+                return null;
+            TestNGTestResultBuildAction r = (TestNGTestResultBuildAction)b.getAction(getParentAction().getClass());
+            if(r!=null) {
+                TestResult result = r.findCorrespondingResultSuite(this.getSuiteId());
+                if (result!=null)
+                    return result;
+            }
+        }
+    }
+    
+    public String getSuiteId() {
+            StringBuilder buf = new StringBuilder();
+            buf.append(getSafeName());
 
+            BaseResult parent = getSuiteParent();
+            if (parent != null) {
+                String parentId = parent.getSuiteId();
+                if ((parentId != null) && (parentId.length() > 0)) {
+                    buf.insert(0, '/');
+                    buf.insert(0, parentId);
+                }
+            }
+            return buf.toString();
+        }
+    
+    public abstract BaseResult getSuiteParent();
+    public abstract List<? extends BaseResult> getSuiteChildren();
+    
 }

@@ -221,7 +221,6 @@ public class Publisher extends Recorder implements SimpleBuildStep {
       }
 
       TestNGResult results = new TestNGResult();
-      results.setPackageView(packageView);
       try {
          results = TestNGTestResultBuildAction.loadResults(build, logger);
       } catch (Throwable t) {
@@ -234,7 +233,7 @@ public class Publisher extends Recorder implements SimpleBuildStep {
 
       if (results.getSuiteList().size() > 0) {
          //create an individual report for all of the results and add it to the build
-         build.addAction(new TestNGTestResultBuildAction(results, escapeTestDescp, escapeExceptionMsg, showFailedBuilds));
+         build.addAction(new TestNGTestResultBuildAction(results, escapeTestDescp, escapeExceptionMsg, showFailedBuilds, packageView));
          if (failureOnFailedTestConfig && results.getFailedConfigCount() > 0) {
             logger.println("Failed configuration methods found. Marking build as FAILURE.");
             build.setResult(Result.FAILURE);

@@ -61,7 +61,7 @@ table(id:"allClasses", border:"1px", class:"pane sortable") {
             def prevClazz = clazz.previousResult
             tr() {
                 td(align:"left") {
-                    a(href:"${clazz.upUrl}") {
+                    a(href:"${clazz.upUrlPkg}") {
                         text("${clazz.name}")
                     }
                 }

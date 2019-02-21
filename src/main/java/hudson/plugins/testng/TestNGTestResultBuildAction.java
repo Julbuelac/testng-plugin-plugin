@@ -15,12 +15,16 @@ import hudson.model.Action;
 import hudson.model.Api;
 import hudson.model.Run;
 import hudson.plugins.testng.parser.ResultsParser;
+import hudson.plugins.testng.results.BaseResult;
 import hudson.plugins.testng.results.MethodResult;
 import hudson.plugins.testng.results.PackageResult;
 import hudson.plugins.testng.results.SuiteResult;
 import hudson.plugins.testng.results.TestNGResult;
+import hudson.plugins.testng.results.TestNGTestResult;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.TestResult;
+
 import java.util.Collection;
 import java.util.Collections;
 import jenkins.tasks.SimpleBuildStep;
@@ -33,213 +37,227 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author nullin
  * @since v1.0
  */
-public class TestNGTestResultBuildAction extends AbstractTestResultAction implements Serializable, SimpleBuildStep.LastBuildAction {
+public class TestNGTestResultBuildAction extends AbstractTestResultAction
+		implements Serializable, SimpleBuildStep.LastBuildAction {
 
-    private static final Logger LOGGER = Logger.getLogger(TestNGTestResultBuildAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(TestNGTestResultBuildAction.class.getName());
 
-    /**
-     * Unique identifier for this class.
-     */
-    private static final long serialVersionUID = 31415926L;
+	/**
+	 * Unique identifier for this class.
+	 */
+	private static final long serialVersionUID = 31415926L;
 
-    /**
-     * try and be good citizen. We don't want to hold this in memory.
-     * We also don't want to save this to build XML as we already save testng Reports
-     */
-    private transient Reference<TestNGResult> testngResultRef;
+	/**
+	 * try and be good citizen. We don't want to hold this in memory. We also don't
+	 * want to save this to build XML as we already save testng Reports
+	 */
+	private transient Reference<TestNGResult> testngResultRef;
 
-    /*
-     * Cache test counts to speed up loading of graphs
-     */
-    protected Integer passCount; // null if uncomputed
-    protected int failCount;
-    protected int skipCount;
-    private final boolean escapeTestDescp;
-    private final boolean escapeExceptionMsg;
-    private final boolean showFailedBuilds;
+	/*
+	 * Cache test counts to speed up loading of graphs
+	 */
+	protected Integer passCount; // null if uncomputed
+	protected int failCount;
+	protected int skipCount;
+	private final boolean escapeTestDescp;
+	private final boolean escapeExceptionMsg;
+	private final boolean showFailedBuilds;
+	private final boolean packageView;
 
-    public TestNGTestResultBuildAction(TestNGResult testngResults, boolean escapeTestDescp, boolean escapeExceptionMsg, boolean showFailedBuilds) {
-        if (testngResults != null) {
-            this.testngResultRef = new WeakReference<TestNGResult>(testngResults);
+	public TestNGTestResultBuildAction(TestNGResult testngResults, boolean escapeTestDescp, boolean escapeExceptionMsg,
+			boolean showFailedBuilds, boolean packageView) {
+		if (testngResults != null) {
+			this.testngResultRef = new WeakReference<TestNGResult>(testngResults);
 
-            //initialize the cached values when TestNGBuildAction is instantiated
-            count(testngResults);
-        }
-        this.escapeTestDescp = escapeTestDescp;
-        this.escapeExceptionMsg = escapeExceptionMsg;
-        this.showFailedBuilds = showFailedBuilds;
-    }
+			// initialize the cached values when TestNGBuildAction is instantiated
+			count(testngResults);
+		}
+		this.escapeTestDescp = escapeTestDescp;
+		this.escapeExceptionMsg = escapeExceptionMsg;
+		this.showFailedBuilds = showFailedBuilds;
+		this.packageView = packageView;
+	}
 
-    private void count(TestNGResult testngResults) {
-        this.passCount = testngResults.getPassCount();
-        this.failCount = testngResults.getFailCount();
-        this.skipCount = testngResults.getSkipCount();
-    }
+	private void count(TestNGResult testngResults) {
+		this.passCount = testngResults.getPassCount();
+		this.failCount = testngResults.getFailCount();
+		this.skipCount = testngResults.getSkipCount();
+	}
 
-    private void countAndSave(TestNGResult testngResults) {
-        int savedPassCount = passCount != null ? passCount : -1;
-        int savedFailCount = failCount;
-        int savedSkipCount = skipCount;
-        count(testngResults);
-        if (passCount != savedPassCount || failCount != savedFailCount || skipCount != savedSkipCount) {
-            LOGGER.log(Level.FINE, "saving {0}", owner);
-            try {
-                owner.save();
-            } catch (IOException x) {
-                LOGGER.log(Level.WARNING, "failed to save " + owner, x);
-            }
-        }
-    }
+	private void countAndSave(TestNGResult testngResults) {
+		int savedPassCount = passCount != null ? passCount : -1;
+		int savedFailCount = failCount;
+		int savedSkipCount = skipCount;
+		count(testngResults);
+		if (passCount != savedPassCount || failCount != savedFailCount || skipCount != savedSkipCount) {
+			LOGGER.log(Level.FINE, "saving {0}", owner);
+			try {
+				owner.save();
+			} catch (IOException x) {
+				LOGGER.log(Level.WARNING, "failed to save " + owner, x);
+			}
+		}
+	}
 
-    private void countAsNeeded() {
-        if (passCount == null) {
-            countAndSave(getResult());
-        }
-    }
+	private void countAsNeeded() {
+		if (passCount == null) {
+			countAndSave(getResult());
+		}
+	}
 
-    @Override
-    public TestNGResult getResult() {
-        return getResult(super.run);
-    }
+	@Override
+	public TestNGResult getResult() {
+		return getResult(super.run);
+	}
 
-    public TestNGResult getResult(Run build) {
-        TestNGResult tr = testngResultRef != null ? testngResultRef.get() : null;
-        if (tr == null) {
-            tr = loadResults(build, null);
-            countAndSave(tr);
-            testngResultRef = new WeakReference<TestNGResult>(tr);
-        }
-        return tr;
-    }
+	public TestNGResult getResult(Run build) {
+		TestNGResult tr = testngResultRef != null ? testngResultRef.get() : null;
+		if (tr == null) {
+			tr = loadResults(build, null);
+			countAndSave(tr);
+			testngResultRef = new WeakReference<TestNGResult>(tr);
+		}
+		return tr;
+	}
 
-    static TestNGResult loadResults(Run<?, ?> owner, PrintStream logger) {
-        LOGGER.log(Level.FINE, "loading results for {0}", owner);
-        FilePath testngDir = Publisher.getTestNGReport(owner);
-        FilePath[] paths = null;
-        try {
-            paths = testngDir.list("testng-results*.xml");
-        } catch (Exception e) {
-            //do nothing
-        }
+	static TestNGResult loadResults(Run<?, ?> owner, PrintStream logger) {
+		LOGGER.log(Level.FINE, "loading results for {0}", owner);
+		FilePath testngDir = Publisher.getTestNGReport(owner);
+		FilePath[] paths = null;
+		try {
+			paths = testngDir.list("testng-results*.xml");
+		} catch (Exception e) {
+			// do nothing
+		}
 
-        if (paths == null) {
-            TestNGResult tr = new TestNGResult();
-            tr.setRun(owner);
-            return tr;
-        }
+		if (paths == null) {
+			TestNGResult tr = new TestNGResult();
+			tr.setRun(owner);
+			return tr;
+		}
 
-        ResultsParser parser = new ResultsParser(logger);
-        TestNGResult result = parser.parse(paths);
-        result.setRun(owner);
-        return result;
-    }
+		ResultsParser parser = new ResultsParser(logger);
+		TestNGResult result = parser.parse(paths);
+		result.setRun(owner);
+		return result;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getIconFileName() {
-        return PluginImpl.ICON_FILE_NAME;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getIconFileName() {
+		return PluginImpl.ICON_FILE_NAME;
+	}
 
-    @Override
-    public int getFailCount() {
-        countAsNeeded();
-        return failCount;
-    }
+	@Override
+	public int getFailCount() {
+		countAsNeeded();
+		return failCount;
+	}
 
-    @Override
-    public int getSkipCount() {
-        countAsNeeded();
-        return skipCount;
-    }
+	@Override
+	public int getSkipCount() {
+		countAsNeeded();
+		return skipCount;
+	}
 
-    @Override
-    public int getTotalCount() {
-        countAsNeeded();
-        return failCount + passCount + skipCount;
-    }
+	@Override
+	public int getTotalCount() {
+		countAsNeeded();
+		return failCount + passCount + skipCount;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getDisplayName() {
-        return PluginImpl.DISPLAY_NAME;
-    }
+	public boolean getPackageView() {
+		return packageView;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getUrlName() {
-        return PluginImpl.URL;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDisplayName() {
+		return PluginImpl.DISPLAY_NAME;
+	}
 
-    public SuiteResult getSuite(String arg) {
-   	 for (SuiteResult suite : getResult().getSuiteList()) {
-   		 if (arg.equals(suite.getSafeName())) return suite;
-   	 }
-   	 return null;
-   }
-   
-   public PackageResult getPackage(String arg) {
-  	 for (PackageResult pkg : getResult().getPackageList()) {
-  		 if (arg.equals(pkg.getSafeName())) return pkg;
-  	 }
-  	 return null;
-  }
-    
-    public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
-        return getResult().getDynamic(token, req, rsp);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getUrlName() {
+		return PluginImpl.URL;
+	}
 
-    @Override
-    public Api getApi() {
-        return new Api(getResult());
-    }
+	public SuiteResult getSuite(String arg) {
+		for (SuiteResult suite : getResult().getSuiteList()) {
+			if (arg.equals(suite.getSafeName()))
+				return suite;
+		}
+		return null;
+	}
 
-    public List<CaseResult> getFailedTests() {
+	public PackageResult getPackage(String arg) {
+		for (PackageResult pkg : getResult().getPackageList()) {
+			if (arg.equals(pkg.getSafeName()))
+				return pkg;
+		}
+		return null;
+	}
 
-        class HackyCaseResult extends CaseResult {
+	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+		return getResult().getDynamic(token, req, rsp);
+	}
 
-            private MethodResult methodResult;
+	@Override
+	public Api getApi() {
+		return new Api(getResult());
+	}
 
-            public HackyCaseResult(MethodResult methodResult) {
-                super(null, methodResult.getDisplayName(), methodResult.getErrorStackTrace());
-                this.methodResult = methodResult;
-            }
+	public List<CaseResult> getFailedTests() {
 
-            public Status getStatus() {
-                //We don't calculate age of results currently
-                //so, can't state if the failure is a regression or not
-                return Status.FAILED;
-            }
+		class HackyCaseResult extends CaseResult {
 
-            public String getClassName() {
-                return methodResult.getClassName();
-            }
+			private MethodResult methodResult;
 
-            public String getDisplayName() {
-                return methodResult.getDisplayName();
-            }
+			public HackyCaseResult(MethodResult methodResult) {
+				super(null, methodResult.getDisplayName(), methodResult.getErrorStackTrace());
+				this.methodResult = methodResult;
+			}
 
-            public String getErrorDetails() {
-                return methodResult.getErrorDetails();
-            }
-        }
+			public Status getStatus() {
+				// We don't calculate age of results currently
+				// so, can't state if the failure is a regression or not
+				return Status.FAILED;
+			}
 
-        List< CaseResult > results = new ArrayList<CaseResult>(getFailCount());
-        for (MethodResult methodResult : getResult().getFailedTests()) {
-            results.add(new HackyCaseResult(methodResult));
-        }
+			public String getClassName() {
+				return methodResult.getClassName();
+			}
 
-        return results;
-    }
+			public String getDisplayName() {
+				return methodResult.getDisplayName();
+			}
 
-    @Override
-    public Collection<? extends Action> getProjectActions() {
-        return Collections.singleton(new TestNGProjectAction(run.getParent(), escapeTestDescp, escapeExceptionMsg, showFailedBuilds));
-    }
+			public String getErrorDetails() {
+				return methodResult.getErrorDetails();
+			}
+		}
 
+		List<CaseResult> results = new ArrayList<CaseResult>(getFailCount());
+		for (MethodResult methodResult : getResult().getFailedTests()) {
+			results.add(new HackyCaseResult(methodResult));
+		}
+
+		return results;
+	}
+
+	@Override
+	public Collection<? extends Action> getProjectActions() {
+		return Collections.singleton(new TestNGProjectAction(run.getParent(), escapeTestDescp, escapeExceptionMsg,
+				showFailedBuilds, packageView));
+	}
+
+	public TestResult findCorrespondingResultSuite(String id) {
+		return getResult().findCorrespondingResultSuite(id);
+	}
 }
