@@ -35,7 +35,7 @@ function collapseSubRows(row, table){
 function expandTable(table){
 	document.querySelectorAll('#'+table+' tbody tr').forEach(function(row) {
 		row.style.display = 'table-row';
-		var icon = document.querySelector('[node="'+row.getAttribute('node')+'"] .expandIcon')
+		var icon = document.querySelector('#'+table+ ' [node="'+row.getAttribute('node')+'"] .expandIcon')
 		if (icon != null){
 		icon.className='collapseIcon';
 		icon.setAttribute( 'onClick', 'collapseTableRow("'+row.getAttribute('node')+'", "'+table+'");');
@@ -46,14 +46,15 @@ function expandTable(table){
 function collapseTable(table){
 	document.querySelectorAll('#'+table+' tbody tr[parentRow]').forEach(function(row) {
 		row.style.display = 'none';
-		var icon = document.querySelector('[node="'+row.getAttribute('node')+'"] .collapseIcon')
+		console.log('#'+table+' [node="'+row.getAttribute('node')+'"] .collapseIcon')
+		var icon = document.querySelector('#'+table+' [node="'+row.getAttribute('node')+'"] .collapseIcon')
 		if (icon != null){
 			icon.className='expandIcon';
 			icon.setAttribute( 'onClick', 'expandTableRow("'+row.getAttribute('node')+'", "'+table+'");');
 			}
 	});
 	document.querySelectorAll('#'+table+' tbody tr:not([parentRow])').forEach(function(row){
-		var icon = document.querySelector('[node="'+row.getAttribute('node')+'"] .collapseIcon')
+		var icon = document.querySelector('#'+table+' [node="'+row.getAttribute('node')+'"] .collapseIcon')
 		if (icon != null){
 			icon.className='expandIcon';
 			icon.setAttribute( 'onClick', 'expandTableRow("'+row.getAttribute('node')+'", "'+table+'");');

@@ -14,7 +14,7 @@ def testngProjAction = my.run.project.getAction(TestNGProjectAction.class)
 div(id: "report") {
     h1("${my.name}")
     text("(from ")
-    a(href: "${my.parent.upUrl}", id: "parent") {
+    a(href: "${my.parent.upUrlPkg}", id: "parent") {
         text("${my.parent.canonicalName}")
     }
     text(" took ${my.durationString})")
@@ -39,13 +39,19 @@ div(id: "report") {
 
     if (my.parentTestName) {
         div(id: "parent-test-name") {
-            text("Test Name: ${my.parentTestName}")
+			text("Test Name: ")
+			a(href: "${my.parent.upUrlSuite}", id: "parent") {
+            text("${my.parentTestName}")
+			}
         }
     }
 
     if (my.parentSuiteName) {
         div(id: "parent-suite-name") {
-            text("Suite Name: ${my.parentSuiteName}")
+			text("Test Name: ")
+			a(href: "${my.parent.parentTest.parentSuite.upUrlSuite}", id: "parent") {
+            text("${my.parentSuiteName}")
+			}
         }
     }
 

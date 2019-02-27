@@ -128,18 +128,17 @@ public class TestNGResult extends BaseResult implements Serializable {
 	public int getSkippedConfigCount() {
 		return skippedConfigCount;
 	}
-	
+
 	@Exported(name = "pass-config")
 	public int getPassedConfigCount() {
 		return passedConfigCount;
 	}
 
-	
 	@Exported(name = "all-config")
 	public int getTotalConfigCount() {
-		return passedConfigCount+skippedConfigCount+failedConfigCount;
+		return passedConfigCount + skippedConfigCount + failedConfigCount;
 	}
-	
+
 	@Exported(name = "package")
 	public Collection<PackageResult> getPackageList() {
 		return packageMap.values();
@@ -208,8 +207,7 @@ public class TestNGResult extends BaseResult implements Serializable {
 				this.getFailedConfigs().add(testMethod);
 			} else if ("SKIP".equals(testMethod.getStatus())) {
 				this.getSkippedConfigs().add(testMethod);
-			}
-			else if ("PASS".equals(testMethod.getStatus())) {
+			} else if ("PASS".equals(testMethod.getStatus())) {
 				this.passedConfigCount++;
 			}
 		} else {
@@ -233,13 +231,11 @@ public class TestNGResult extends BaseResult implements Serializable {
 
 			for (TestNGTestResult test : suite.getTestList()) {
 				for (ClassResult _class : test.getClassList()) {
-					for (MethodResult _method : _class.getChildren()) {
-						updateTestMethodLists(_method);
-					}
 					_class.tally();
 					String pkg = _class.getPkgName();
 					if (packageMap.containsKey(pkg)) {
 						Map<String, ClassResult> classResults = packageMap.get(pkg).getClassMap();
+						_class.setPkgParent(packageMap.get(pkg));
 						if (!classResults.containsKey(_class.name)) {
 							classResults.put(_class.name, _class);
 						} else {
@@ -250,7 +246,11 @@ public class TestNGResult extends BaseResult implements Serializable {
 						tpkg.getClassMap().put(_class.name, _class);
 						tpkg.setParent(this);
 						tpkg.setTestNGResult(this);
+						_class.setPkgParent(tpkg);
 						packageMap.put(pkg, tpkg);
+					}
+					for (MethodResult _method : _class.getChildren()) {
+						updateTestMethodLists(_method);
 					}
 				}
 				test.tally();
@@ -258,9 +258,7 @@ public class TestNGResult extends BaseResult implements Serializable {
 			suite.setTestNGResult(this);
 			suite.tally();
 		}
-
-
-
+		
 		failedConfigCount = failedConfigurationMethods.size();
 		skippedConfigCount = skippedConfigurationMethods.size();
 		failCount = failedTests.size();
@@ -290,12 +288,12 @@ public class TestNGResult extends BaseResult implements Serializable {
 	public BaseResult getParent() {
 		return null;
 	}
-	
+
 	@Override
 	public BaseResult getSuiteParent() {
 		return null;
 	}
-	
+
 	@Override
 	public List<? extends BaseResult> getSuiteChildren() {
 		return this.suiteList;
@@ -308,7 +306,7 @@ public class TestNGResult extends BaseResult implements Serializable {
 
 	@Override
 	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
-		
+
 		for (TestResult result : this.getChildren()) {
 			if (token.equals(result.getSafeName())) {
 				return result;

@@ -1,20 +1,17 @@
 package hudson.plugins.testng.results;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import hudson.model.Run;
-import jenkins.model.Jenkins;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.model.Run;
+import jenkins.model.Jenkins;
 
 /**
  * Handle results related to a single test class
@@ -46,7 +43,6 @@ public class ClassResult extends BaseResult {
 	
 	private TestNGTestResult parentTest;
 	private PackageResult parentPkg;
-	private boolean packageView;
 	
 	public List<MethodResult> getFailedConfigs() {
 		return failedConfigs;
@@ -70,14 +66,6 @@ public class ClassResult extends BaseResult {
 		return configPass;
 	}
 
-	
-	public boolean getPackageView() {
-		return packageView;
-	}
-
-	public void setPackageView(boolean pkgView) {
-		this.packageView = pkgView;
-	}
 
 	public ClassResult(String pkgName, String name) {
 		super(name);
@@ -241,6 +229,7 @@ public class ClassResult extends BaseResult {
 		}
 	}
 
+	
 	public String getUpUrlSuite() {
 		Jenkins j = Jenkins.getInstance();
 		return j != null ? j.getRootUrl() + run.getUrl() + getSuiteUrl() : "";
@@ -257,7 +246,7 @@ public class ClassResult extends BaseResult {
 	}
 
 	public String getSuiteUrl() {
-		return this.getParentTest().getSuiteUrl() + this.getSafeName() + "/";
+		return this.getParentTest().getSuiteUrl();
 	}
 
 	public String getUpUrlPkg() {

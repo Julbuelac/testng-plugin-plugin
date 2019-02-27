@@ -60,7 +60,7 @@ public class SuiteResult extends BaseResult {
 		return configPass;
 	}
 
-	public int getTotalconfigCount() {
+	public int getTotalConfigCount() {
 		return configPass + configSkip + configFail;
 	}
 

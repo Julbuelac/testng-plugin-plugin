@@ -1,6 +1,7 @@
 package hudson.plugins.testng.TestNGTestResultBuildAction
 
-import hudson.plugins.testng.util.FormatUtil
+import hudson.plugins.testng.util.FormatUtil;
+import hudson.plugins.testng.util.DisplayUtil;
 
 f = namespace(lib.FormTagLib)
 l = namespace(lib.LayoutTagLib)
@@ -16,7 +17,6 @@ public String pkgDisplay(display) {
 int i;
 int j;
 int k;
-int l;
 
 link(href:"${app.rootUrl}plugin/testng-plugin/css/table.css", rel:"stylesheet", type:"text/css")
 
@@ -35,7 +35,7 @@ else {
 
 
 div(class:"pkgView", style: "display: "+ pkgDisplay(my.packageView)){
-	
+
 	h2("Failed Tests")
 
 	if (my.result.failCount != 0) {
@@ -128,7 +128,7 @@ div(class:"pkgView", style: "display: "+ pkgDisplay(my.packageView)){
 }
 
 div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
-	
+
 	h2("Failed Tests")
 
 	if (my.result.failCount > 0) {
@@ -140,7 +140,7 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 		table(id:"fail-tbl-suite", border:"1px", class:"pane sortable") {
 			thead() {
 				tr() {
-					th(class: "pane-header") { text("Suite/Test/Class/Method/Error detail") }
+					th(class: "pane-header") { text("Suite/Test/Method/Error detail") }
 					th(class: "pane-header", style:"width:10em") { text("Failed Tests (Diff)") }
 				}
 			}
@@ -148,12 +148,11 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 				i=1;
 				j=1;
 				k=1;
-				l=1;
 				for (suite in my.result.suiteList) {
 					if (suite.failCount > 0) {
 						tr(node:i) {
 							td(align: "left", class:"rootRowPadding") {
-								span(title:"Show children", onclick:"expandTableRow('${i}', 'fail-tbl-suite')", class:"expandIcon")
+								span(title:"show/hide children", onclick:"expandTableRow('${i}', 'fail-tbl-suite')", class:"expandIcon")
 								text(" ")
 								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 							}
@@ -163,46 +162,38 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 							if (test.failCount > 0) {
 								tr(node:i+"."+j, parentRow:i, style:"display:none;") {
 									td(align: "left", class:"subRow1Padding") {
-										span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'fail-tbl-suite')", class:"expandIcon")
+										span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'fail-tbl-suite')", class:"expandIcon")
 										text(" ")
 										a(href:"${test.upUrlSuite}") { text("${test.name}") }
 									}
 									td(align: "center") { text("${test.failCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.failCount - test.previousResultSuite.failCount)}"+")") }
 								}
-							}
-							for (clazz in test.children) {
-								if (clazz.failCount > 0) {
-									tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-										td(align: "left", class:"subRow2Padding") {
-											span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'fail-tbl-suite')", class:"expandIcon")
-											text(" ")
-											a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-										}
-										td(align: "center") { text("${clazz.failCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.failCount - clazz.previousResultSuite.failCount)}"+")") }
-									}
-								}
-								for (method in clazz.failedTests) {
-									tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-										td(align: "left", class:"subRow3Padding") {
-											a(id: "${method.id}_suite-showlink", title:"Error details", href:"javascript:showStackTrace('${method.id}_suite', '${method.upUrlSuite}/summary')") { text(">>>") }
-											a(style: "display:none", id: "${method.id}_suite-hidelink", title:"Error details", href:"javascript:hideStackTrace('${method.id}_suite')")  { text("<<<") }
-											text(" ")
-											a(href:"${method.upUrlSuite}") { text("${method.name}") }
-											if (method.description != null && method.description != "") {
-												br()
-												text("${method.description}")
+
+								for (clazz in test.children) {
+									if (clazz.failCount > 0) {
+										for (method in clazz.failedTests) {
+											tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
+												td(align: "left", class:"subRow2Padding") {
+													a(id: "${method.id}_suite-showlink", title:"Error details", href:"javascript:showStackTrace('${method.id}_suite', '${method.upUrlSuite}/summary')") { text(">>>") }
+													a(style: "display:none", id: "${method.id}_suite-hidelink", title:"Error details", href:"javascript:hideStackTrace('${method.id}_suite')")  { text("<<<") }
+													text(" ")
+													a(href:"${method.upUrlSuite}") { text("${method.name}") }
+													if (method.description != null && method.description != "") {
+														br()
+														text("${method.description}")
+													}
+													div(id:"${method.id}_suite", style: "display:none", class: "hidden") { text("Loading...") }
+												}
+												td(align: "center") { text("${DisplayUtil.methodFailDiff(method.previousResultSuite)}") }
 											}
-											div(id:"${method.id}_suite", style: "display:none", class: "hidden") { text("Loading...") }
 										}
-										td(align: "center") { text("Duration: ${method.duration}") }
+										k++;
 									}
-									l++;
 								}
-								k++; l=0;
+								j++; k=1;
 							}
-							j++; k=0;
 						}
-						i++; j=0;
+						i++; j=1;
 					}
 				}
 			}
@@ -221,7 +212,7 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 		table(id:"configFail-tbl-suite", border:"1px", class:"pane sortable") {
 			thead() {
 				tr() {
-					th(class: "pane-header") { text("Suite/Test/Class/Method/Error detail") }
+					th(class: "pane-header") { text("Suite/Test/Method/Error detail") }
 					th(class: "pane-header", style:"width:10em") { text("Failed Configuration Methods (Diff)") }
 				}
 			}
@@ -229,12 +220,11 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 				i=1;
 				j=1;
 				k=1;
-				l=1;
 				for (suite in my.result.suiteList) {
 					if (suite.configFailCount > 0) {
 						tr(node:i) {
 							td(align: "left", class:"rootRowPadding") {
-								span(title:"Show children", onclick:"expandTableRow('${i}', 'configFail-tbl-suite')", class:"expandIcon")
+								span(title:"show/hide children", onclick:"expandTableRow('${i}', 'configFail-tbl-suite')", class:"expandIcon")
 								text(" ")
 								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 							}
@@ -244,44 +234,35 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 							if (test.configFailCount > 0) {
 								tr(node:i+"."+j, parentRow:i, style:"display:none;") {
 									td(align: "left", class:"subRow1Padding") {
-										span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'configFail-tbl-suite')", class:"expandIcon")
+										span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'configFail-tbl-suite')", class:"expandIcon")
 										text(" ")
 										a(href:"${test.upUrlSuite}") { text("${test.name}") }
 									}
 									td(align: "center") { text("${test.configFailCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")") }
 								}
-							}
-							for (clazz in test.children) {
-								if (clazz.failedConfigs.size() > 0) {
-									tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-										td(align: "left", class:"subRow2Padding") {
-											span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'configFail-tbl-suite')", class:"expandIcon")
-											text(" ")
-											a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-										}
-										td(align: "center") { text("${clazz.failedConfigs.size()}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.failedConfigs.size() - clazz.previousResultSuite.failedConfigs.size())}"+")") }
-									}
-								}
-								for (method in clazz.failedConfigs) {
-									tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-										td(align: "left", class:"subRow3Padding") {
-											a(id: "${method.id}_suite-showlink", title:"Error details", href:"javascript:showStackTrace('${method.id}_suite', '${method.upUrlSuite}/summary')") { text(">>>") }
-											a(style: "display:none", id: "${method.id}_suite-hidelink", title:"Error details", href:"javascript:hideStackTrace('${method.id}_suite')")  { text("<<<") }
-											text(" ")
-											a(href:"${method.upUrlSuite}") { text("${method.name}") }
-											if (method.description != null && method.description != "") {
-												br()
-												text("${method.description}")
+								for (clazz in test.children) {
+									if (clazz.failedConfigs.size() > 0) {
+										for (method in clazz.failedConfigs) {
+											tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
+												td(align: "left", class:"subRow2Padding") {
+													a(id: "${method.id}_suite-showlink", title:"Error details", href:"javascript:showStackTrace('${method.id}_suite', '${method.upUrlSuite}/summary')") { text(">>>") }
+													a(style: "display:none", id: "${method.id}_suite-hidelink", title:"Error details", href:"javascript:hideStackTrace('${method.id}_suite')")  { text("<<<") }
+													text(" ")
+													a(href:"${method.upUrlSuite}") { text("${method.name}") }
+													if (method.description != null && method.description != "") {
+														br()
+														text("${method.description}")
+													}
+													div(id:"${method.id}_suite", style: "display:none", class: "hidden") { text("Loading...") }
+												}
+												td(align: "center") { text("${DisplayUtil.methodFailDiff(method.previousResultSuite)}") }
 											}
-											div(id:"${method.id}_suite", style: "display:none", class: "hidden") { text("Loading...") }
+											k++;
 										}
-										td(align: "center") { text("Duration: ${method.duration}") }
 									}
-									l++;
 								}
-								k++; l=0;
+								j++; k=0;
 							}
-							j++; k=0;
 						}
 						i++; j=0;
 					}
@@ -300,7 +281,7 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 		table(id:"skip-tbl-suite", border:"1px", class:"pane sortable") {
 			thead() {
 				tr() {
-					th(class: "pane-header") { text("Suite/Test/Class/Method") }
+					th(class: "pane-header") { text("Suite/Test/Method") }
 					th(class: "pane-header", style:"width:10em") { text("Skipped Tests (Diff)") }
 				}
 			}
@@ -308,12 +289,11 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 				i=1;
 				j=1;
 				k=1;
-				l=1;
 				for (suite in my.result.suiteList) {
 					if (suite.skipCount > 0) {
 						tr(node:i) {
 							td(align: "left", class:"rootRowPadding") {
-								span(title:"Show children", onclick:"expandTableRow('${i}', 'skip-tbl-suite')", class:"expandIcon")
+								span(title:"show/hide children", onclick:"expandTableRow('${i}', 'skip-tbl-suite')", class:"expandIcon")
 								text(" ")
 								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 							}
@@ -323,42 +303,34 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 							if (test.skipCount > 0) {
 								tr(node:i+"."+j, parentRow:i, style:"display:none;") {
 									td(align: "left", class:"subRow1Padding") {
-										span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'skip-tbl-suite')", class:"expandIcon")
+										span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'skip-tbl-suite')", class:"expandIcon")
 										text(" ")
 										a(href:"${test.upUrlSuite}") { text("${test.name}") }
 									}
 									td(align: "center") { text("${test.skipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.skipCount - test.previousResultSuite.skipCount)}"+")") }
 								}
-							}
-							for (clazz in test.children) {
-								if (clazz.skippedTests.size() > 0) {
-									tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-										td(align: "left", class:"subRow2Padding") {
-											span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'skip-tbl-suite')", class:"expandIcon")
-											text(" ")
-											a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-										}
-										td(align: "center") { text("${clazz.skipCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.skipCount - clazz.previousResultSuite.skipCount)}"+")") }
-									}
-								}
-								for (method in clazz.skippedTests) {
-									tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-										td(align: "left", class:"subRow3Padding") {
-											a(href:"${method.upUrlSuite}") { text("${method.name}") }
-											if (method.description != null && method.description != "") {
-												br()
-												text("${method.description}")
+
+								for (clazz in test.children) {
+									if (clazz.skippedTests.size() > 0) {
+										for (method in clazz.skippedTests) {
+											tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
+												td(align: "left", class:"subRow2Padding") {
+													a(href:"${method.upUrlSuite}") { text("${method.name}") }
+													if (method.description != null && method.description != "") {
+														br()
+														text("${method.description}")
+													}
+												}
+												td(align: "center") { text("${DisplayUtil.methodSkipDiff(method.previousResultSuite)}") }
 											}
+											k++;
 										}
-										td(align: "center") { text("Duration: ${method.duration}") }
 									}
-									l++;
 								}
-								k++; l=0;
+								j++; k=1;
 							}
-							j++; k=0;
 						}
-						i++; j=0;
+						i++; j=1;
 					}
 				}
 			}
@@ -375,7 +347,7 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 		table(id:"configSkip-tbl-suite", border:"1px", class:"pane sortable") {
 			thead() {
 				tr() {
-					th(class: "pane-header") { text("Suite/Test/Class/Method") }
+					th(class: "pane-header") { text("Suite/Test/Method") }
 					th(class: "pane-header", style:"width:10em") { text("Skipped Configuration Methods (Diff)") }
 				}
 			}
@@ -383,12 +355,11 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 				i=1;
 				j=1;
 				k=1;
-				l=1;
 				for (suite in my.result.suiteList) {
 					if (suite.configSkipCount > 0) {
 						tr(node:i) {
 							td(align: "left", class:"rootRowPadding") {
-								span(title:"Show children", onclick:"expandTableRow('${i}', 'configSkip-tbl-suite')", class:"expandIcon")
+								span(title:"show/hide children", onclick:"expandTableRow('${i}', 'configSkip-tbl-suite')", class:"expandIcon")
 								text(" ")
 								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 							}
@@ -398,42 +369,36 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 							if (test.configSkipCount > 0) {
 								tr(node:i+"."+j, parentRow:i, style:"display:none;") {
 									td(align: "left", class:"subRow1Padding") {
-										span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'configSkip-tbl-suite')", class:"expandIcon")
+										span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'configSkip-tbl-suite')", class:"expandIcon")
 										text(" ")
 										a(href:"${test.upUrlSuite}") { text("${test.name}") }
 									}
 									td(align: "center") { text("${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")") }
 								}
-							}
-							for (clazz in test.children) {
-								if (clazz.skippedConfigs.size() > 0) {
-									tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-										td(align: "left", class:"subRow2Padding") {
-											span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'configSkip-tbl-suite')", class:"expandIcon")
-											text(" ")
-											a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-										}
-										td(align: "center") { text("${clazz.skippedConfigs.size()}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.skippedConfigs.size() - clazz.previousResultSuite.skippedConfigs.size())}"+")") }
-									}
-								}
-								for (method in clazz.skippedConfigs) {
-									tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-										td(align: "left", class:"subRow3Padding") {
-											a(href:"${method.upUrlSuite}") { text("${method.name}") }
-											if (method.description != null && method.description != "") {
-												br()
-												text("${method.description}")
+
+								for (clazz in test.children) {
+									if (clazz.skippedConfigs.size() > 0) {
+
+										for (method in clazz.skippedConfigs) {
+											tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
+												td(align: "left", class:"subRow2Padding") {
+													a(href:"${method.upUrlSuite}") { text("${method.name}") }
+													if (method.description != null && method.description != "") {
+														br()
+														text("${method.description}")
+													}
+												}
+												td(align: "center") { text("${DisplayUtil.methodSkipDiff(method.previousResultSuite)}") }
 											}
+
+											k++;
 										}
-										td(align: "center") { text("Duration: ${method.duration}") }
 									}
-									l++;
 								}
-								k++; l=0;
+								j++; k=1;
 							}
-							j++; k=0;
 						}
-						i++; j=0;
+						i++; j=1;
 					}
 				}
 			}
@@ -441,202 +406,167 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 	}
 
 	h2("All Tests")
-	
+
 	if(my.result.totalCount > 0) {
 
-	button(onclick:"expandTable('test-tbl-suite')") { text("Expand the table") }
+		button(onclick:"expandTable('test-tbl-suite')") { text("Expand the table") }
 
-	button(onclick:"collapseTable('test-tbl-suite')") { text("Collapse the table") }
+		button(onclick:"collapseTable('test-tbl-suite')") { text("Collapse the table") }
 
 
-	table(id:"test-tbl-suite", border:"1px", class:"pane sortable") {
-		thead() {
-			tr() {
-				th(class:"pane-header") { text("Suite/Test/Class/Method") }
-				th(class:"pane-header", style:"width:10em", title:"Duration") { text("Duration") }
-				th(class:"pane-header", style:"width:10em", title:"Status") { text("Status (Diff)") }
-
-			}
-		}
-		tbody () {
-			i=1;
-			j=1;
-			k=1;
-			l=1;
-			for (suite in my.result.suiteList) {
-				tr(node:i) {
-					td(align: "left", class:"rootRowPadding") {
-						span(title:"Show children", onclick:"expandTableRow('${i}', 'test-tbl-suite')", class:"expandIcon")
-						text(" ")
-						a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
-					}
-					td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
-					td(align: "center", class: "${setColorClass(suite)}") {
-						text("Passed: " + "${suite.passCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.passCount - suite.previousResultSuite.passCount)}"+")")
-						br()
-						text("Skipped: " + "${suite.skipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.skipCount - suite.previousResultSuite.skipCount)}"+")")
-						br()
-						text("Failed: " + "${suite.failCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.failCount - suite.previousResultSuite.failCount)}"+")")}
+		table(id:"test-tbl-suite", border:"1px", class:"pane sortable") {
+			thead() {
+				tr() {
+					th(class:"pane-header") { text("Suite/Test/Method") }
+					th(class:"pane-header", style:"width:10em", title:"Duration") { text("Duration") }
+					th(class:"pane-header", style:"width:10em", title:"Status") { text("Status (Diff)") }
 				}
-				for (test in suite.children) {
-					tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
-						td(align: "left", class:"subRow1Padding") {
-							span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'test-tbl-suite')", class:"expandIcon")
+			}
+			tbody () {
+				i=1;
+				j=1;
+				k=1;
+				for (suite in my.result.suiteList) {
+					tr(node:i) {
+						td(align: "left", class:"rootRowPadding") {
+							span(title:"show/hide children", onclick:"expandTableRow('${i}', 'test-tbl-suite')", class:"expandIcon")
 							text(" ")
-							a(href:"${test.upUrlSuite}") {text("${test.name}") }
+							a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 						}
-						td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
-						td(align: "center", class: "${setColorClass(test)}") {
-							text("Passed: " + "${test.passCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.passCount - test.previousResultSuite.passCount)}"+")")
+						td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
+						td(align: "center", class: "${DisplayUtil.setColorClass(suite)}") {
+							text("Passed: " + "${suite.passCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.passCount - suite.previousResultSuite.passCount)}"+")")
 							br()
-							text("Skipped: " + "${test.skipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.skipCount - test.previousResultSuite.skipCount)}"+")")
+							text("Skipped: " + "${suite.skipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.skipCount - suite.previousResultSuite.skipCount)}"+")")
 							br()
-							text("Failed: " + "${test.failCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.failCount - test.previousResultSuite.failCount)}"+")") }
+							text("Failed: " + "${suite.failCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.failCount - suite.previousResultSuite.failCount)}"+")")
+						}
 					}
-					for (clazz in test.children) {
-						tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-							td(align: "left", class:"subRow2Padding") {
-								span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'test-tbl-suite')", class:"expandIcon")
+					for (test in suite.children) {
+						tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
+							td(align: "left", class:"subRow1Padding") {
+								span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'test-tbl-suite')", class:"expandIcon")
 								text(" ")
-								a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-								
+								a(href:"${test.upUrlSuite}") {text("${test.name}") }
 							}
-							td(align: "center") { text("${FormatUtil.formatTime(clazz.duration)}") }
-							td(align: "center", class: "${setColorClass(clazz)}") {
-								text("Passed: " + "${clazz.passCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.passCount - clazz.previousResultSuite.passCount)}"+")")
+							td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
+							td(align: "center", class: "${DisplayUtil.setColorClass(test)}") {
+								text("Passed: " + "${test.passCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.passCount - test.previousResultSuite.passCount)}"+")")
 								br()
-								text("Skipped: " + "${clazz.skipCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.skipCount - clazz.previousResultSuite.skipCount)}"+")")
+								text("Skipped: " + "${test.skipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.skipCount - test.previousResultSuite.skipCount)}"+")")
 								br()
-								text("Failed: " + "${clazz.failCount}" + " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.failCount - clazz.previousResultSuite.failCount)}"+")") }
+								text("Failed: " + "${test.failCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.failCount - test.previousResultSuite.failCount)}"+")")
+							}
 						}
-						for (method in clazz.testMethods) {
-							tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-								td(align: "left", class:"subRow3Padding") {
-									a(href:"${method.upUrlSuite}") { text("${method.name}") }
-									if (method.description != null && method.description != "") {
-										br()
-										text("${method.description}")
+						for (clazz in test.children) {
+							for (method in clazz.testMethods) {
+								tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
+									td(align: "left", class:"subRow2Padding") {
+										a(href:"${method.upUrlSuite}") { text("${method.name}") }
+										if (method.description != null && method.description != "") {
+											br()
+											text("${method.description}")
+										}
+									}
+									td(align: "center") {
+										text("${FormatUtil.formatTime(method.duration)}")
+										td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
 									}
 								}
-								td(align: "center") {
-									text("${FormatUtil.formatTime(method.duration)}")
-									td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
-								}
+								k++;
 							}
-							l++;
 						}
-						k++;l=0;
+						j++; k=1;
 					}
-					j++; k=0;
+					i++; j=1;
 				}
-				i++; j=0;
 			}
-
 		}
-	}
 	}
 	else {
 		test("No test method was found for this run")
 	}
-	
+
 	h2("All Configuration Methods")
 	if(my.result.totalConfigCount > 0) {
-		
-			button(onclick:"expandTable('config-tbl-suite')") { text("Expand the table") }
-		
-			button(onclick:"collapseTable('config-tbl-suite')") { text("Collapse the table") }
-		
-		
-			table(id:"config-tbl-suite", border:"1px", class:"pane sortable") {
-				thead() {
-					tr() {
-						th(class:"pane-header") { text("Suite/Test/Class/Method") }
-						th(class:"pane-header", style:"width:10em", title:"Duration") { text("Duration") }
-						th(class:"pane-header", style:"width:10em", title:"Status") { text("Status (Diff)") }
-		
-					}
+
+		button(onclick:"expandTable('config-tbl-suite')") { text("Expand the table") }
+
+		button(onclick:"collapseTable('config-tbl-suite')") { text("Collapse the table") }
+
+
+		table(id:"config-tbl-suite", border:"1px", class:"pane sortable") {
+			thead() {
+				tr() {
+					th(class:"pane-header") { text("Suite/Test/Method") }
+					th(class:"pane-header", style:"width:10em", title:"Duration") { text("Duration") }
+					th(class:"pane-header", style:"width:10em", title:"Status") { text("Status (Diff)") }
 				}
-				tbody () {
-					i=1;
-					j=1;
-					k=1;
-					l=1;
-					for (suite in my.result.suiteList) {
-						tr(node:i) {
-							td(align: "left", class:"rootRowPadding") {
-								span(title:"Show children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
-								text(" ")
-								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
-							}
-							td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
-							td(align: "center", class: "${setColorClass(suite)}") {
-								text("Passed: " + "${suite.passCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.passCount - suite.previousResultSuite.passCount)}"+")")
-								br()
-								text("Skipped: " + "${suite.skipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.skipCount - suite.previousResultSuite.skipCount)}"+")")
-								br()
-								text("Failed: " + "${suite.failCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.failCount - suite.previousResultSuite.failCount)}"+")")}
+			}
+			tbody () {
+				i=1;
+				j=1;
+				k=1;
+				for (suite in my.result.suiteList) {
+					tr(node:i) {
+						td(align: "left", class:"rootRowPadding") {
+							span(title:"show/hide children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
+							text(" ")
+							a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 						}
-						for (test in suite.children) {
-							tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
-								td(align: "left", class:"subRow1Padding") {
-									span(title:"Show children", onclick:"expandTableRow('${i+"."+j}', 'config-tbl-suite')", class:"expandIcon")
-									text(" ")
-									a(href:"${test.upUrlSuite}") {text("${test.name}") }
-								}
-								td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
-								td(align: "center", class: "${setColorClass(test)}") {
-									text("Passed: " + "${test.passCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.passCount - test.previousResultSuite.passCount)}"+")")
-									br()
-									text("Skipped: " + "${test.skipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.skipCount - test.previousResultSuite.skipCount)}"+")")
-									br()
-									text("Failed: " + "${test.failCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.failCount - test.previousResultSuite.failCount)}"+")") }
+						td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
+						td(align: "center", class: "${DisplayUtil.setColorClassConfig(suite)}") {
+							text("Passed: " + "${suite.configPassCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configPassCount - suite.previousResultSuite.configPassCount)}"+")")
+							br()
+							text("Skipped: " + "${suite.configSkipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configSkipCount - suite.previousResultSuite.configSkipCount)}"+")")
+							br()
+							text("Failed: " + "${suite.configFailCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configFailCount - suite.previousResultSuite.configFailCount)}"+")")
+						}
+					}
+					for (test in suite.children) {
+						tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
+							td(align: "left", class:"subRow1Padding") {
+								span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'config-tbl-suite')", class:"expandIcon")
+								text(" ")
+								a(href:"${test.upUrlSuite}") {text("${test.name}") }
 							}
-							for (clazz in test.children) {
+							td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
+							td(align: "center", class: "${DisplayUtil.setColorClassConfig(test)}") {
+								text("Passed: " + "${test.configPassCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configPassCount - test.previousResultSuite.configPassCount)}"+")")
+								br()
+								text("Skipped: " + "${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")")
+								br()
+								text("Failed: " + "${test.configFailCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")")
+							}
+						}
+						for (clazz in test.children) {
+							for (method in clazz.configurationMethods) {
 								tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
 									td(align: "left", class:"subRow2Padding") {
-										span(title:"Show children", onclick:"expandTableRow('${i+"."+j+"."+k}', 'config-tbl-suite')", class:"expandIcon")
-										text(" ")
-										a(href:"${clazz.upUrlSuite}") { text("${clazz.name}") }
-										
-									}
-									td(align: "center") { text("${FormatUtil.formatTime(clazz.duration)}") }
-									td(align: "center", class: "${setColorClass(clazz)}") {
-										text("Passed: " + "${clazz.passCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.passCount - clazz.previousResultSuite.passCount)}"+")")
-										br()
-										text("Skipped: " + "${clazz.skipCount}"+ " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.skipCount - clazz.previousResultSuite.skipCount)}"+")")
-										br()
-										text("Failed: " + "${clazz.failCount}" + " ("+"${FormatUtil.formatLong(clazz.previousResultSuite == null ? 0 : clazz.failCount - clazz.previousResultSuite.failCount)}"+")") }
-								}
-								for (method in clazz.configurationMethods) {
-									tr(node:i+"."+j+"."+k+"."+l, parentRow:i+"."+j+"."+k, style:"display:none;") {
-										td(align: "left", class:"subRow3Padding") {
-											a(href:"${method.upUrlSuite}") { text("${method.name}") }
-											if (method.description != null && method.description != "") {
-												br()
-												text("${method.description}")
-											}
-										}
-										td(align: "center") {
-											text("${FormatUtil.formatTime(method.duration)}")
-											td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
+										a(href:"${method.upUrlSuite}") { text("${method.name}") }
+										if (method.description != null && method.description != "") {
+											br()
+											text("${method.description}")
 										}
 									}
-									l++;
+									td(align: "center") {
+										text("${FormatUtil.formatTime(method.duration)}")
+										td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
+									}
 								}
-								k++;l=0;
+								k++;
 							}
-							j++; k=0;
 						}
-						i++; j=0;
+						j++; k=1;
 					}
-		
+					i++; j=1;
 				}
 			}
-			}
-			else {
-				test("No configuration method was found for this run")
-			}
-	
+		}
+	}
+	else {
+		test("No configuration method was found for this run")
+	}
 }
 
 /**
@@ -665,11 +595,11 @@ def printMethods(type, tableName, methodList, showMoreArrows) {
 				tr() {
 					td(align: "left") {
 						if (showMoreArrows) {
-							a(id: "${method.id}-showlink", href:"javascript:showStackTrace('${method.id}', '${method.upUrl}/summary')") { text(">>>") }
+							a(id: "${method.id}-showlink", href:"javascript:showStackTrace('${method.id}', '${method.upUrlPkg}/summary')") { text(">>>") }
 							a(style: "display:none", id: "${method.id}-hidelink", href:"javascript:hideStackTrace('${method.id}')") { text("<<<") }
 							text(" ")
 						}
-						a(href:"${method.upUrl}") { text("${method.parent.canonicalName}.${method.name}") }
+						a(href:"${method.upUrlPkg}") { text("${method.parent.canonicalName}.${method.name}") }
 						if (showMoreArrows) {
 							div(id:"${method.id}", style: "display:none", class: "hidden") { text("Loading...") }
 						}

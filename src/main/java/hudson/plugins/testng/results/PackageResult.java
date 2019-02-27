@@ -301,7 +301,6 @@ public class PackageResult extends BaseResult {
 		if (this.classMap != null) {
 			for (ClassResult classResult : this.classMap.values()) {
 				if (token.equals(classResult.getName())) {
-					classResult.setPackageView(true);
 					return classResult;
 				}
 			}
