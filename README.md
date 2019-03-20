@@ -1,2 +1,0 @@
-# custom-testng-jenkins-plugin
-
