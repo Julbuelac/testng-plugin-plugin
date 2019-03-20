@@ -250,7 +250,6 @@ public class MethodResult extends BaseResult {
      *
      * @param req request
      * @param rsp response
-     * @throws IOException
      */
     public void doGraph(final StaplerRequest req, StaplerResponse rsp) throws IOException {
         Graph g = getGraph(req, rsp);
@@ -264,7 +263,6 @@ public class MethodResult extends BaseResult {
      *
      * @param req request
      * @param rsp response
-     * @throws IOException
      */
     public void doGraphMap(final StaplerRequest req, StaplerResponse rsp) throws IOException {
         Graph g = getGraph(req, rsp);
@@ -393,7 +391,7 @@ public class MethodResult extends BaseResult {
     /**
      * Used to give different color based on test status
      *
-     * @return
+     * @return CSS class
      */
     public Object getCssClass() {
         if (this.status != null) {
@@ -413,7 +411,7 @@ public class MethodResult extends BaseResult {
     }
 
     /**
-     *
+     * @param reporterOutput reporter output
      */
     public void setReporterOutput(String reporterOutput) {
         this.reporterOutput = reporterOutput;

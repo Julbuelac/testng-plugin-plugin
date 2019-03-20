@@ -94,7 +94,7 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
      *
      * Can get into a bad situation if the same job has configured JUnit and TestNG reports
      *
-     * @return
+     * @return TestNG results action
      */
     @Override
     public AbstractTestResultAction getTestResultAction() {
@@ -107,7 +107,7 @@ public abstract class BaseResult extends TabulatedResult implements ModelObject,
 
     /**
      * @see BaseResult#getTestResultAction()
-     * @return
+     * @return TestNG results action
      */
     @Override
     public AbstractTestResultAction getParentAction() {

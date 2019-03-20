@@ -27,6 +27,8 @@ public class TestResultHistoryUtil {
     *       {@link hudson.plugins.testng.TestNGTestResultBuildAction},
     *       otherwise returns an empty {@link hudson.plugins.testng.results.TestNGResult}
     *       object. <b>Never returns {@code null}.</b>
+    *       
+    *       @param owner Owner
     */
    public static TestNGResult getPreviousBuildTestResults(Run<?, ?> owner) {
       // Doesn't make sense to return a build that is still running.

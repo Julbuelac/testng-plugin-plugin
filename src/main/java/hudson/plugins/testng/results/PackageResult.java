@@ -105,7 +105,7 @@ public class PackageResult extends BaseResult {
 	 * Gets all the method results related to this package sorted by the time the
 	 * methods were executed
 	 *
-	 * @return
+	 * @return List of this package's methods sorted by their start time
 	 */
 	public List<MethodResult> getSortedTestMethodsByStartTime() {
 		if (sortedTestMethodsByStartTime == null) {
@@ -118,7 +118,7 @@ public class PackageResult extends BaseResult {
 	 * Gets table row representation for all the method results associated with this
 	 * package (sorted based on start time)
 	 *
-	 * @return
+	 * @return table row representation
 	 */
 	@JavaScriptMethod
 	public String getAllSortedTestMethodsByStartTime() {
@@ -129,7 +129,7 @@ public class PackageResult extends BaseResult {
 	 * Gets table row representation for the first {@link #MAX_EXEC_MTHD_LIST_SIZE}
 	 * method results associated with this package (sorted based on start time)
 	 *
-	 * @return
+	 * @return table row representation
 	 */
 	@JavaScriptMethod
 	public String getFirstXSortedTestMethodsByStartTime() {
@@ -290,10 +290,10 @@ public class PackageResult extends BaseResult {
 	 * TODO: Added this in release 1.7. Delete this method in one of the next few
 	 * release.
 	 *
-	 * @param token
-	 * @param req
-	 * @param rsp
-	 * @return
+	 * @param token Name of the class to find
+	 * @param req StaplerRequest
+	 * @param rsp StaplerResponse
+	 * @return Class from this package
 	 */
 	@Override
 	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {

@@ -87,7 +87,7 @@ public class ClassResult extends BaseResult {
 	/**
 	 * Called only from jelly file
 	 *
-	 * @return
+	 * @return test run map
 	 */
 	public Map<String, GroupedTestRun> getTestRunMap() {
 		if (testRunMap != null) {

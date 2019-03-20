@@ -155,7 +155,7 @@ public class TestNGResult extends BaseResult implements Serializable {
 	/**
 	 * Adds only the {@code <suite>}s that already aren't part of the list.
 	 *
-	 * @param testList
+	 * @param suiteList List of suites
 	 */
 	// TODO: whats going on here? why unique?
 	public void addUniqueSuites(List<SuiteResult> suiteList) {

@@ -125,7 +125,10 @@ public class TestNGProjectAction extends TestResultProjectAction implements Prom
       }.doPng(req,rsp);
    }
 
-    /** Generalizes {@link AbstractBuild#getUpUrl} to {@link Run}. */
+    /** Generalizes {@link AbstractBuild#getUpUrl} to {@link Run}. 
+     *
+     * @return URL of the object's nearest ancestor
+     */
     public String getUpUrl() {
         return Functions.getNearestAncestorUrl(Stapler.getCurrentRequest(), job) + '/';
     }
