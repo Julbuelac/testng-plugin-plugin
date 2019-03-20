@@ -1,21 +1,25 @@
 <testng-results>
-  <reporter-output>
-  </reporter-output>
-  <suite name="Ant suite" duration-ms="29" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-    <groups>
-    </groups>
-    <test name="Ant test" duration-ms="29" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-      <class name="org.jenkins.TestDataProvider">
-        <test-method status="FAIL" signature="test(int)" name="test" duration-ms="9" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+	<reporter-output>
+	</reporter-output>
+	<suite name="Ant suite" duration-ms="29"
+		started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
+		<groups>
+		</groups>
+		<test name="Ant test" duration-ms="29"
+			started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
+			<class name="org.jenkins.TestDataProvider">
+				<test-method status="FAIL" signature="test(int)"
+					name="test" duration-ms="9" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[1]]>
-              </value>
-            </param>
-          </params>
-          <exception class="java.lang.AssertionError">
-            <full-stacktrace>
+							</value>
+						</param>
+					</params>
+					<exception class="java.lang.AssertionError">
+						<full-stacktrace>
               <![CDATA[java.lang.AssertionError
 	at org.jenkins.TestDataProvider.test(TestDataProvider.java:15)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -43,19 +47,21 @@
 	at org.testng.TestNG.privateMain(TestNG.java:1150)
 	at org.testng.TestNG.main(TestNG.java:1114)
 ]]>
-            </full-stacktrace>
-          </exception>
-        </test-method>
-        <test-method status="FAIL" signature="test(int)" name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+						</full-stacktrace>
+					</exception>
+				</test-method>
+				<test-method status="FAIL" signature="test(int)"
+					name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[3]]>
-              </value>
-            </param>
-          </params>
-          <exception class="java.lang.AssertionError">
-            <full-stacktrace>
+							</value>
+						</param>
+					</params>
+					<exception class="java.lang.AssertionError">
+						<full-stacktrace>
               <![CDATA[java.lang.AssertionError
 	at org.jenkins.TestDataProvider.test(TestDataProvider.java:15)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -83,28 +89,32 @@
 	at org.testng.TestNG.privateMain(TestNG.java:1150)
 	at org.testng.TestNG.main(TestNG.java:1114)
 ]]>
-            </full-stacktrace>
-          </exception>
-        </test-method>
-        <test-method status="PASS" signature="test(int)" name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+						</full-stacktrace>
+					</exception>
+				</test-method>
+				<test-method status="PASS" signature="test(int)"
+					name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[2]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="FAIL" signature="test(int)" name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+							</value>
+						</param>
+					</params>
+				</test-method>
+				<test-method status="FAIL" signature="test(int)"
+					name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[5]]>
-              </value>
-            </param>
-          </params>
-          <exception class="java.lang.AssertionError">
-            <full-stacktrace>
+							</value>
+						</param>
+					</params>
+					<exception class="java.lang.AssertionError">
+						<full-stacktrace>
               <![CDATA[java.lang.AssertionError
 	at org.jenkins.TestDataProvider.test(TestDataProvider.java:15)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -132,37 +142,43 @@
 	at org.testng.TestNG.privateMain(TestNG.java:1150)
 	at org.testng.TestNG.main(TestNG.java:1114)
 ]]>
-            </full-stacktrace>
-          </exception>
-        </test-method>
-        <test-method status="PASS" signature="test(int)" name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+						</full-stacktrace>
+					</exception>
+				</test-method>
+				<test-method status="PASS" signature="test(int)"
+					name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[4]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="PASS" signature="test(int)" name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+							</value>
+						</param>
+					</params>
+				</test-method>
+				<test-method status="PASS" signature="test(int)"
+					name="test" duration-ms="1" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[8]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-        <test-method status="FAIL" signature="test(int)" name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+							</value>
+						</param>
+					</params>
+				</test-method>
+				<test-method status="FAIL" signature="test(int)"
+					name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[7]]>
-              </value>
-            </param>
-          </params>
-          <exception class="java.lang.AssertionError">
-            <full-stacktrace>
+							</value>
+						</param>
+					</params>
+					<exception class="java.lang.AssertionError">
+						<full-stacktrace>
               <![CDATA[java.lang.AssertionError
 	at org.jenkins.TestDataProvider.test(TestDataProvider.java:15)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
@@ -190,19 +206,21 @@
 	at org.testng.TestNG.privateMain(TestNG.java:1150)
 	at org.testng.TestNG.main(TestNG.java:1114)
 ]]>
-            </full-stacktrace>
-          </exception>
-        </test-method>
-        <test-method status="PASS" signature="test(int)" name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z" finished-at="2011-03-09T21:13:15Z">
-          <params>
-            <param index="0">
-              <value>
+						</full-stacktrace>
+					</exception>
+				</test-method>
+				<test-method status="PASS" signature="test(int)"
+					name="test" duration-ms="0" started-at="2011-03-09T21:13:15Z"
+					finished-at="2011-03-09T21:13:15Z">
+					<params>
+						<param index="0">
+							<value>
                 <![CDATA[6]]>
-              </value>
-            </param>
-          </params>
-        </test-method>
-      </class>
-    </test>
-  </suite>
+							</value>
+						</param>
+					</params>
+				</test-method>
+			</class>
+		</test>
+	</suite>
 </testng-results>

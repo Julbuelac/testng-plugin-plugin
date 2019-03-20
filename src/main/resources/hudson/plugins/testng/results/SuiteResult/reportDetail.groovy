@@ -333,41 +333,43 @@ if(my.totalConfigCount > 0) {
 			i=1;
 			j=1;
 			for (test in my.children) {
-				tr(node:i) {
-					td(align: "left", class:"rootRowPadding") {
-						span(title:"show/hide children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
-						text(" ")
-						a(href:"${test.upUrlSuite}") { text("${test.name}") }
+				if(test.getTotalConfigCount() != 0) {
+					tr(node:i) {
+						td(align: "left", class:"rootRowPadding") {
+							span(title:"show/hide children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
+							text(" ")
+							a(href:"${test.upUrlSuite}") { text("${test.name}") }
+						}
+						td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
+						td(align: "center", class: "${DisplayUtil.setColorClassConfig(test)}") {
+							text("Passed: " + "${test.configPassCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configPassCount - test.previousResultSuite.configPassCount)}"+")")
+							br()
+							text("Skipped: " + "${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")")
+							br()
+							text("Failed: " + "${test.configFailCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")")
+						}
 					}
-					td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
-					td(align: "center", class: "${DisplayUtil.setColorClassConfig(test)}") {
-						text("Passed: " + "${test.configPassCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configPassCount - test.previousResultSuite.configPassCount)}"+")")
-						br()
-						text("Skipped: " + "${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")")
-						br()
-						text("Failed: " + "${test.configFailCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")")
-					}
-				}
-				for (clazz in test.children) {
+					for (clazz in test.children) {
 
-					for (method in clazz.configurationMethods) {
-						tr(node:i+"."+j, parentRow:i, style:"display:none;") {
-							td(align: "left", class:"subRow1Padding") {
-								a(href:"${method.upUrlSuite}") { text("${method.name}") }
-								if (method.description != null && method.description != "") {
-									br()
-									text("${method.description}")
+						for (method in clazz.configurationMethods) {
+							tr(node:i+"."+j, parentRow:i, style:"display:none;") {
+								td(align: "left", class:"subRow1Padding") {
+									a(href:"${method.upUrlSuite}") { text("${method.name}") }
+									if (method.description != null && method.description != "") {
+										br()
+										text("${method.description}")
+									}
+								}
+								td(align: "center") {
+									text("${FormatUtil.formatTime(method.duration)}")
+									td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
 								}
 							}
-							td(align: "center") {
-								text("${FormatUtil.formatTime(method.duration)}")
-								td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
-							}
+							j++;
 						}
-						j++;
 					}
+					i++; j=1;
 				}
-				i++; j=1;
 			}
 		}
 	}

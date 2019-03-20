@@ -508,58 +508,62 @@ div(class:"suiteView", style: "display: " + pkgDisplay(!my.packageView)){
 				j=1;
 				k=1;
 				for (suite in my.result.suiteList) {
-					tr(node:i) {
-						td(align: "left", class:"rootRowPadding") {
-							span(title:"show/hide children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
-							text(" ")
-							a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
-						}
-						td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
-						td(align: "center", class: "${DisplayUtil.setColorClassConfig(suite)}") {
-							text("Passed: " + "${suite.configPassCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configPassCount - suite.previousResultSuite.configPassCount)}"+")")
-							br()
-							text("Skipped: " + "${suite.configSkipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configSkipCount - suite.previousResultSuite.configSkipCount)}"+")")
-							br()
-							text("Failed: " + "${suite.configFailCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configFailCount - suite.previousResultSuite.configFailCount)}"+")")
-						}
-					}
-					for (test in suite.children) {
-						tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
-							td(align: "left", class:"subRow1Padding") {
-								span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'config-tbl-suite')", class:"expandIcon")
+					if(suite.getTotalConfigCount() != 0) {
+						tr(node:i) {
+							td(align: "left", class:"rootRowPadding") {
+								span(title:"show/hide children", onclick:"expandTableRow('${i}', 'config-tbl-suite')", class:"expandIcon")
 								text(" ")
-								a(href:"${test.upUrlSuite}") {text("${test.name}") }
+								a(href:"${suite.upUrlSuite}") { text("${suite.name}") }
 							}
-							td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
-							td(align: "center", class: "${DisplayUtil.setColorClassConfig(test)}") {
-								text("Passed: " + "${test.configPassCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configPassCount - test.previousResultSuite.configPassCount)}"+")")
+							td(align: "center") { text("${FormatUtil.formatTime(suite.duration)}") }
+							td(align: "center", class: "${DisplayUtil.setColorClassConfig(suite)}") {
+								text("Passed: " + "${suite.configPassCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configPassCount - suite.previousResultSuite.configPassCount)}"+")")
 								br()
-								text("Skipped: " + "${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")")
+								text("Skipped: " + "${suite.configSkipCount}"+ " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configSkipCount - suite.previousResultSuite.configSkipCount)}"+")")
 								br()
-								text("Failed: " + "${test.configFailCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")")
+								text("Failed: " + "${suite.configFailCount}" + " ("+"${FormatUtil.formatLong(suite.previousResultSuite == null ? 0 : suite.configFailCount - suite.previousResultSuite.configFailCount)}"+")")
 							}
 						}
-						for (clazz in test.children) {
-							for (method in clazz.configurationMethods) {
-								tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
-									td(align: "left", class:"subRow2Padding") {
-										a(href:"${method.upUrlSuite}") { text("${method.name}") }
-										if (method.description != null && method.description != "") {
-											br()
-											text("${method.description}")
-										}
+						for (test in suite.children) {
+							if(test.getTotalConfigCount() != 0) {
+								tr(node:i+"."+j, parentRow:i,  style:"display:none;") {
+									td(align: "left", class:"subRow1Padding") {
+										span(title:"show/hide children", onclick:"expandTableRow('${i+"."+j}', 'config-tbl-suite')", class:"expandIcon")
+										text(" ")
+										a(href:"${test.upUrlSuite}") {text("${test.name}") }
 									}
-									td(align: "center") {
-										text("${FormatUtil.formatTime(method.duration)}")
-										td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
+									td(align: "center") { text("${FormatUtil.formatTime(test.duration)}") }
+									td(align: "center", class: "${DisplayUtil.setColorClassConfig(test)}") {
+										text("Passed: " + "${test.configPassCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configPassCount - test.previousResultSuite.configPassCount)}"+")")
+										br()
+										text("Skipped: " + "${test.configSkipCount}"+ " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configSkipCount - test.previousResultSuite.configSkipCount)}"+")")
+										br()
+										text("Failed: " + "${test.configFailCount}" + " ("+"${FormatUtil.formatLong(test.previousResultSuite == null ? 0 : test.configFailCount - test.previousResultSuite.configFailCount)}"+")")
 									}
 								}
-								k++;
+								for (clazz in test.children) {
+									for (method in clazz.configurationMethods) {
+										tr(node:i+"."+j+"."+k, parentRow:i+"."+j, style:"display:none;") {
+											td(align: "left", class:"subRow2Padding") {
+												a(href:"${method.upUrlSuite}") { text("${method.name}") }
+												if (method.description != null && method.description != "") {
+													br()
+													text("${method.description}")
+												}
+											}
+											td(align: "center") {
+												text("${FormatUtil.formatTime(method.duration)}")
+												td(align: "center", class: method.status.toLowerCase()) { text("${method.status}") }
+											}
+										}
+										k++;
+									}
+								}
+								j++; k=1;
 							}
 						}
-						j++; k=1;
+						i++; j=1;
 					}
-					i++; j=1;
 				}
 			}
 		}

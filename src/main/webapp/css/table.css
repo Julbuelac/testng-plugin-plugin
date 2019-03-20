@@ -1,41 +1,41 @@
-.expandIcon{
+.expandIcon {
 	background-image: url(../icons/plus.png);
-		width: 14px;
-		height: 14px;
-		display: inline-block;
+	width: 14px;
+	height: 14px;
+	display: inline-block;
 }
 
-.collapseIcon{
+.collapseIcon {
 	background-image: url(../icons/minus.png);
-		width: 14px;
-		height: 14px;
-		display: inline-block;
+	width: 14px;
+	height: 14px;
+	display: inline-block;
 }
 
-.pass{
+.pass {
 	background-color: #92D050;
 }
 
-.fail{
+.fail {
 	background-color: #F37A7A;
 }
 
-.skip{
+.skip {
 	background-color: #FDED72;
 }
 
-td.rootRowPadding{
-	padding-left:0.5em
+td.rootRowPadding {
+	padding-left: 0.5em
 }
 
 td.subRow1Padding {
-	padding-left:2.5em
+	padding-left: 2.5em
 }
 
 td.subRow2Padding {
-	padding-left:4.5em
+	padding-left: 4.5em
 }
 
-td{
-	height:4em;
+td {
+	height: 4em;
 }
