@@ -250,6 +250,7 @@ public class MethodResult extends BaseResult {
      *
      * @param req request
      * @param rsp response
+     * @throws IOException -
      */
     public void doGraph(final StaplerRequest req, StaplerResponse rsp) throws IOException {
         Graph g = getGraph(req, rsp);
@@ -263,6 +264,7 @@ public class MethodResult extends BaseResult {
      *
      * @param req request
      * @param rsp response
+     * @throws IOException -
      */
     public void doGraphMap(final StaplerRequest req, StaplerResponse rsp) throws IOException {
         Graph g = getGraph(req, rsp);
