@@ -48,7 +48,7 @@ div(id: "report") {
 
     if (my.parentSuiteName) {
         div(id: "parent-suite-name") {
-			text("Test Name: ")
+			text("Suite Name: ")
 			a(href: "${my.parent.parentTest.parentSuite.upUrlSuite}", id: "parent") {
             text("${my.parentSuiteName}")
 			}

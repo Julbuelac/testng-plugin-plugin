@@ -284,7 +284,8 @@ public class ResultsParser {
             }
          }
       }
-
+      //organizes the tests in finalResults
+      finalResults.fillTestMethodLists();
       //tally up the results properly before returning
       finalResults.tally();
       return finalResults;
@@ -484,9 +485,6 @@ public class ResultsParser {
 
    private void startTest(String name, String duration, String startTime)
    {
-      if (testResultMap.containsKey(name)) {
-         currentTest = testResultMap.get(name);
-      } else {
     	  Date startedTimeDate = null;
           try {
              startedTimeDate = this.dateFormat.parse(startTime);
@@ -495,7 +493,6 @@ public class ResultsParser {
           }
          currentTest = new TestNGTestResult(name, startedTimeDate.getTime(),duration);
          testResultMap.put(name, currentTest);
-      }
       currentClassList = new ArrayList<ClassResult>();
    }
 

@@ -38,8 +38,8 @@ public class TestNGResult extends BaseResult implements Serializable {
 	private int skippedConfigCount;
 	private int passedConfigCount = 0;;
 	private Map<String, PackageResult> packageMap = new HashMap<String, PackageResult>();
-	// Determines if the view shows the tests sorted by suite (default) or by
-	// package
+	// boolean to make sure fillTestMethodsLists() is only called once
+	private boolean methodListsFilled = false;
 
 	/**
 	 * @param name input name is ignored
@@ -201,23 +201,34 @@ public class TestNGResult extends BaseResult implements Serializable {
 				passCount + failCount + skipCount, failCount, skipCount, failedConfigCount, skippedConfigCount);
 	}
 
-	private void updateTestMethodLists(MethodResult testMethod) {
-		if (testMethod.isConfig()) {
-			if ("FAIL".equals(testMethod.getStatus())) {
-				this.getFailedConfigs().add(testMethod);
-			} else if ("SKIP".equals(testMethod.getStatus())) {
-				this.getSkippedConfigs().add(testMethod);
-			} else if ("PASS".equals(testMethod.getStatus())) {
-				this.passedConfigCount++;
+	public void fillTestMethodLists() {
+		if (!methodListsFilled) {
+			for (SuiteResult suite : suiteList) {
+				for (TestNGTestResult test : suite.getTestList()) {
+					for (ClassResult clazz : test.getClassList()) {
+						for (MethodResult testMethod : clazz.getChildren()) {
+							if (testMethod.isConfig()) {
+								if ("FAIL".equals(testMethod.getStatus())) {
+									this.getFailedConfigs().add(testMethod);
+								} else if ("SKIP".equals(testMethod.getStatus())) {
+									this.getSkippedConfigs().add(testMethod);
+								} else if ("PASS".equals(testMethod.getStatus())) {
+									this.passedConfigCount++;
+								}
+							} else {
+								if ("FAIL".equals(testMethod.getStatus())) {
+									this.getFailedTests().add(testMethod);
+								} else if ("SKIP".equals(testMethod.getStatus())) {
+									this.getSkippedTests().add(testMethod);
+								} else if ("PASS".equals(testMethod.getStatus())) {
+									this.getPassedTests().add(testMethod);
+								}
+							}
+						}
+					}
+				}
 			}
-		} else {
-			if ("FAIL".equals(testMethod.getStatus())) {
-				this.getFailedTests().add(testMethod);
-			} else if ("SKIP".equals(testMethod.getStatus())) {
-				this.getSkippedTests().add(testMethod);
-			} else if ("PASS".equals(testMethod.getStatus())) {
-				this.getPassedTests().add(testMethod);
-			}
+			methodListsFilled = true;
 		}
 	}
 
@@ -228,7 +239,6 @@ public class TestNGResult extends BaseResult implements Serializable {
 	public void tally() {
 		packageMap.clear();
 		for (SuiteResult suite : suiteList) {
-
 			for (TestNGTestResult test : suite.getTestList()) {
 				for (ClassResult _class : test.getClassList()) {
 					_class.tally();
@@ -236,10 +246,12 @@ public class TestNGResult extends BaseResult implements Serializable {
 					if (packageMap.containsKey(pkg)) {
 						Map<String, ClassResult> classResults = packageMap.get(pkg).getClassMap();
 						_class.setPkgParent(packageMap.get(pkg));
-						if (!classResults.containsKey(_class.name)) {
-							classResults.put(_class.name, _class);
+						_class.setParent(packageMap.get(pkg));
+						if (classResults.containsKey(_class.name)) {
+							classResults.get(_class.name).addTestMethods(_class.getChildren());
+							classResults.get(_class.name).tally();
 						} else {
-							classResults.get(_class.name).addTestMethods(_class.getTestMethods());
+							classResults.put(_class.name, _class);
 						}
 					} else {
 						PackageResult tpkg = new PackageResult(pkg);
@@ -249,16 +261,14 @@ public class TestNGResult extends BaseResult implements Serializable {
 						_class.setPkgParent(tpkg);
 						packageMap.put(pkg, tpkg);
 					}
-					for (MethodResult _method : _class.getChildren()) {
-						updateTestMethodLists(_method);
-					}
+
 				}
 				test.tally();
 			}
 			suite.setTestNGResult(this);
 			suite.tally();
 		}
-		
+
 		failedConfigCount = failedConfigurationMethods.size();
 		skippedConfigCount = skippedConfigurationMethods.size();
 		failCount = failedTests.size();

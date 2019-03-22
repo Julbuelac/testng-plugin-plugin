@@ -269,7 +269,7 @@ public class MethodResultTest {
         String contents = element.getTextContent();
         //information about class and time taken
         r.assertStringContains(contents, "test.Test1");
-        assertTrue(element.getAttribute("href").endsWith(urlPrefix + "/test/Test1"));
+        assertTrue(element.getAttribute("href").endsWith(urlPrefix + "/package/test/Test1/"));
 
         //duration string
         r.assertStringContains(page.getElementById("report").getTextContent(), methodResult.getDurationString());

@@ -53,7 +53,7 @@ public class Publisher extends Recorder implements SimpleBuildStep {
    //number of fails that will trigger "Failed"
    private Integer failedFails = 100;
    private Integer thresholdMode = 2;
-   
+   //set default type of view (suite or package) in Jenkins
    private boolean packageView;
 
 

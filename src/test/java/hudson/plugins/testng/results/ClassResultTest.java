@@ -141,7 +141,7 @@ public class ClassResultTest {
         for (MethodResult mr : ((ClassResult) classResult).getChildren()) {
             //would have used mr.getUpUrl() but for some reason
             //as part of test, Jenkins.instance.rootUrl() returns 'null'
-            linksFromResult.add(r.getURL() + mr.getRun().getUrl() + mr.getId());
+            linksFromResult.add(r.getURL() + mr.getRun().getUrl() + "testngreports/package/" + mr.getParent().getParent().getSafeName() + "/" +  mr.getParent().getSafeName() + "/" + mr.getSafeName() + "/");
         }
         Collections.sort(linksFromResult);
 

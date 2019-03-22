@@ -29,7 +29,7 @@ public class TestParser {
       Assert.assertNotNull(resource);
       TestNGResult results = CommonUtil.getResults(resource.getFile());
       Assert.assertFalse("Collection shouldn't have been empty", results.getSuiteList().isEmpty());
-      Assert.assertEquals(2, results.getSuiteList().size());
+      Assert.assertEquals(3, results.getSuiteList().size());
       results.tally();
       Assert.assertEquals(1, results.getPackageNames().size());
       Assert.assertEquals(3, results.getPackageMap().values().iterator().next().getChildren().size());
@@ -98,6 +98,7 @@ public class TestParser {
        Assert.assertEquals(1, results.getPackageNames().size());
        Assert.assertEquals(1, results.getPackageMap().values().iterator().next().getChildren().size());
        Assert.assertEquals(1, results.getPassCount());
+       for (MethodResult method : results.getPassedTests())
        Assert.assertEquals(1, results.getPassedTests().size());
        Assert.assertEquals(1, results.getFailedTests().size());
        Assert.assertNotNull(results.getFailedTests().get(0).getException());

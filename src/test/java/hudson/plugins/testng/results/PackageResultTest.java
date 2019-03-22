@@ -91,10 +91,10 @@ public class PackageResultTest {
         for (ClassResult cr : pkgResult.getChildren()) {
             //would have used cr.getUpUrl() but for some reason
             //as part of test, Jenkins.instance.rootUrl() returns 'null'
-            linksFromResult.add(r.getURL() + cr.getRun().getUrl() + cr.getId());
+            linksFromResult.add(r.getURL() + cr.getRun().getUrl() + "testngreports/package/" + cr.parent.getSafeName() + "/" + cr.getSafeName() + "/");
         }
         Collections.sort(linksFromResult);
-
+        
         assertEquals(linksFromResult, linksInPage);
 
         //verify that all cells have a value (are not empty)

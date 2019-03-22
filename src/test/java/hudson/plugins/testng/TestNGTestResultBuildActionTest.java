@@ -55,6 +55,7 @@ public class TestNGTestResultBuildActionTest {
         FreeStyleProject p = r.createFreeStyleProject();
         Publisher publisher = new Publisher();
         publisher.setReportFilenamePattern("testng.xml");
+        publisher.setPackageView(true);
         p.getPublishersList().add(publisher);
         p.onCreatedFromScratch(); //to setup project action
 
@@ -86,7 +87,7 @@ public class TestNGTestResultBuildActionTest {
         elements = DomNodeUtil.selectNodes(page, "//table[@id='fail-tbl']/tbody/tr/td/a[not(@id)]");
         assertEquals(1, elements.size());
         MethodResult mr = testngResult.getFailedTests().get(0);
-        assertEquals(r.getURL() + mr.getRun().getUrl() + mr.getId(),
+        assertEquals(r.getURL() + mr.getRun().getUrl() + "testngreports/package/" + mr.getParent().getParent().getSafeName() + "/" +  mr.getParent().getSafeName() + "/" + mr.getSafeName() + "/",
                 elements.get(0).getAttribute("href"));
         assertEquals(((ClassResult)mr.getParent()).getCanonicalName() + "." + mr.getName(),
                 elements.get(0).getTextContent());
@@ -96,7 +97,7 @@ public class TestNGTestResultBuildActionTest {
         //asserting to 3, because a link for >>>, one for <<< and another for the method itself
         assertEquals(3, elements.size());
         mr = testngResult.getFailedConfigs().get(0);
-        assertEquals(r.getURL() + mr.getRun().getUrl() + mr.getId(),
+        assertEquals(r.getURL() + mr.getRun().getUrl() + "testngreports/package/" + mr.getParent().getParent().getSafeName() + "/" +  mr.getParent().getSafeName() + "/" + mr.getSafeName() + "/",
                 elements.get(2).getAttribute("href"));
         assertEquals(((ClassResult)mr.getParent()).getCanonicalName() + "." + mr.getName(),
                 elements.get(2).getTextContent());
@@ -105,7 +106,7 @@ public class TestNGTestResultBuildActionTest {
         elements = DomNodeUtil.selectNodes(page, "//table[@id='skip-tbl']/tbody/tr/td/a");
         assertEquals(1, elements.size());
         mr = testngResult.getSkippedTests().get(0);
-        assertEquals(r.getURL() + mr.getRun().getUrl() + mr.getId(),
+        assertEquals(r.getURL() + mr.getRun().getUrl() + "testngreports/package/" + mr.getParent().getParent().getSafeName() + "/" +  mr.getParent().getSafeName() + "/" + mr.getSafeName() + "/",
                 elements.get(0).getAttribute("href"));
         assertEquals(((ClassResult)mr.getParent()).getCanonicalName() + "." + mr.getName(),
                 elements.get(0).getTextContent());
@@ -115,7 +116,7 @@ public class TestNGTestResultBuildActionTest {
         assertEquals(0, elements.size());
 
         //check list of packages and links
-        elements = DomNodeUtil.selectNodes(page, "//table[@id='all-tbl']/tbody/tr/td/a");
+        elements = DomNodeUtil.selectNodes(page, "//table[@id='all-tbl-pkg']/tbody/tr/td/a");
         Map<String, PackageResult> pkgMap = testngResult.getPackageMap();
         assertEquals(pkgMap.keySet().size(), elements.size());
 
@@ -128,7 +129,7 @@ public class TestNGTestResultBuildActionTest {
 
         List<String> linksFromResult = new ArrayList<String>();
         for (PackageResult pr : pkgMap.values()) {
-            linksFromResult.add(pr.getName());
+            linksFromResult.add("package/" + pr.getName());
         }
         Collections.sort(linksFromResult);
         assertEquals(linksFromResult, linksInPage);
@@ -152,6 +153,7 @@ public class TestNGTestResultBuildActionTest {
         FreeStyleProject p = r.createFreeStyleProject();
         Publisher publisher = new Publisher();
         publisher.setReportFilenamePattern("testng.xml");
+        publisher.setPackageView(true);
         p.getPublishersList().add(publisher);
         p.onCreatedFromScratch(); //to setup project action
 
@@ -195,7 +197,7 @@ public class TestNGTestResultBuildActionTest {
         assertEquals(0, elements.size());
 
         //check list of packages and links
-        elements = DomNodeUtil.selectNodes(page, "//table[@id='all-tbl']/tbody/tr/td/a");
+        elements = DomNodeUtil.selectNodes(page, "//table[@id='all-tbl-pkg']/tbody/tr/td/a");
         Map<String, PackageResult> pkgMap = testngResult.getPackageMap();
         assertEquals(pkgMap.keySet().size(), elements.size());
 
@@ -208,12 +210,12 @@ public class TestNGTestResultBuildActionTest {
 
         List<String> linksFromResult = new ArrayList<String>();
         for (PackageResult pr : pkgMap.values()) {
-            linksFromResult.add(pr.getName());
+            linksFromResult.add("package/" + pr.getName());
         }
 
         Collections.sort(linksFromResult);
         assertEquals(linksFromResult, linksInPage);
-        assertTrue(linksInPage.contains("No Package"));
+        assertTrue(linksInPage.contains("package/No Package"));
 
         //verify bar
         HtmlElement element = page.getElementById("fail-skip", true);
