@@ -12,8 +12,14 @@ build into Hudson. The data is parsed using the output generated using
 org.testng.reporters.XMLReporter. The results are displayed with a trend
 graph and all details about which tests that failed are also presented.
 
-The aim of this fork is to improve how the data is displayed in Jenkins
+The aim of this fork is to improve how the data is displayed in Jenkins. You can switch between the new "suite" view or thye old "package" view.
 
+Installation
+-------
+
+Generate the plugin hpi file by running mvn package
+Install in Jenkins by uploading it in the "upload plugin" section of <Jenkins URL>/pluginManager/advanced
+For other installation methods (CLI and file system) see here: https://jenkins.io/doc/book/managing/plugins/#advanced-installation
 
 Release Notes
 -------
