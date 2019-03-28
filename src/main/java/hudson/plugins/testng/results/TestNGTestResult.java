@@ -125,9 +125,8 @@ public class TestNGTestResult extends BaseResult {
 	@Override
 	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
 		for (ClassResult clazz : this.getChildren()) {
-			for(MethodResult method: clazz.getChildren())
-			if (token.equals(method.getName())) {
-				return method;
+			if (token.equals(clazz.getName())) {
+				return clazz;
 			}
 		}
 		return null;

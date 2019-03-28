@@ -246,7 +246,7 @@ public class ClassResult extends BaseResult {
 	}
 
 	public String getSuiteUrl() {
-		return this.getParentTest().getSuiteUrl();
+		return this.getParentTest().getSuiteUrl()+ this.getSafeName()+ "/";
 	}
 
 	public String getUpUrlPkg() {
