@@ -40,7 +40,7 @@ div(id: "report") {
     if (my.parentTestName) {
         div(id: "parent-test-name") {
 			text("Test Name: ")
-			a(href: "${my.parent.upUrlSuite}", id: "parent") {
+			a(href: "${my.suiteParent.suiteParent.upUrlSuite}", id: "parent") {
             text("${my.parentTestName}")
 			}
         }
@@ -49,7 +49,7 @@ div(id: "report") {
     if (my.parentSuiteName) {
         div(id: "parent-suite-name") {
 			text("Suite Name: ")
-			a(href: "${my.parent.parentTest.parentSuite.upUrlSuite}", id: "parent") {
+			a(href: "${my.suiteParent.suiteParent.suiteParent.upUrlSuite}", id: "parent") {
             text("${my.parentSuiteName}")
 			}
         }

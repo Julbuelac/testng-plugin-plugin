@@ -43,6 +43,7 @@ public class ClassResult extends BaseResult {
 	
 	private TestNGTestResult parentTest;
 	private PackageResult parentPkg;
+	private boolean packageView;
 	
 	public List<MethodResult> getFailedConfigs() {
 		return failedConfigs;
@@ -322,6 +323,14 @@ public class ClassResult extends BaseResult {
 	@Override
 	public List<? extends BaseResult> getSuiteChildren() {
 		return this.testMethodList;
+	}
+
+	public boolean isPackageView() {
+		return packageView;
+	}
+
+	public void setPackageView(boolean packageView) {
+		this.packageView = packageView;
 	}
 
 }

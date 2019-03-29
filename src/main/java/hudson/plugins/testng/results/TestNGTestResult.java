@@ -126,6 +126,7 @@ public class TestNGTestResult extends BaseResult {
 	public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
 		for (ClassResult clazz : this.getChildren()) {
 			if (token.equals(clazz.getName())) {
+				clazz.setPackageView(false);
 				return clazz;
 			}
 		}
