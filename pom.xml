@@ -77,6 +77,10 @@
 			<name>Nalin Makar</name>
 			<email>nullin@nullin.com</email>
 		</developer>
+		<developer>
+			<id>julbuelac</id>
+			<name>Julian Bueno Lachapelle</name>
+		</developer>
 	</developers>
 
 	<scm>
