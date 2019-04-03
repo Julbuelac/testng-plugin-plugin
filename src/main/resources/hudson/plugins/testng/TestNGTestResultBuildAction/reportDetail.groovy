@@ -14,11 +14,14 @@ public String pkgDisplay(display) {
 	return "none";
 }
 
+//Suite index
 int i;
+//Test index
 int j;
+//Method index
 int k;
 
-link(href:"${app.rootUrl}plugin/testng-plugin/css/table.css", rel:"stylesheet", type:"text/css")
+link(href:"${app.rootUrl}plugin/testng-plugin/css/suiteView.css", rel:"stylesheet", type:"text/css")
 
 script(type: "text/javascript"){ text("var showPkgView = ${my.packageView};") }
 script(type: "text/javascript", src: "${app.rootUrl}plugin/testng-plugin/js/toggle_mthd_summary.js")
