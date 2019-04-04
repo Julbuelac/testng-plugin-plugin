@@ -41,12 +41,12 @@ public class DisplayUtil {
 	}
 	
 	public static String methodFailDiff(MethodResult previousMethod){
-		if (previousMethod == null || previousMethod.getStatus().equals("FAIL")) return "(0)";
+		if (previousMethod == null || previousMethod.getStatus().equals("FAIL")) return "-";
 		else return "(+1)";	
 	}
 	
 	public static String methodSkipDiff(MethodResult previousMethod){
-		if (previousMethod == null || previousMethod.getStatus().equals("SKIP")) return "(0)";
+		if (previousMethod == null || previousMethod.getStatus().equals("SKIP")) return "-";
 		else return "(+1)";	
 	}
 
