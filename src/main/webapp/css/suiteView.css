@@ -1,15 +1,17 @@
-.expandIcon {
-	background-image: url(../icons/plus.png);
+.expandIcon, .collapseIcon{
+	cursor: pointer;
 	width: 14px;
 	height: 14px;
 	display: inline-block;
 }
 
+.expandIcon {
+	background-image: url(../icons/plus.png);
+	
+}
+
 .collapseIcon {
 	background-image: url(../icons/minus.png);
-	width: 14px;
-	height: 14px;
-	display: inline-block;
 }
 
 .pass {
